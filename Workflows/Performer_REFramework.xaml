@@ -1,0 +1,922 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="Workflows_Performer_REFramework" sap2010:ExpressionActivityEditor.ExpressionActivityEditor="CSharp" sap2010:WorkflowViewState.IdRef="ActivityBuilder_1" xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:av="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:s="clr-namespace:System;assembly=System.Private.CoreLib" xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation" xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation" xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib" xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=System.Private.CoreLib" xmlns:sd="clr-namespace:System.Data;assembly=System.Data.Common" xmlns:ui="http://schemas.uipath.com/workflow/activities" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <x:Members>
+    <x:Property Name="in_dtTransactionData" Type="InArgument(sd:DataTable)" />
+    <x:Property Name="in_QueueName" Type="InArgument(x:String)" />
+    <x:Property Name="in_SimulateCrashAt" Type="InArgument(x:Int32)" />
+    <x:Property Name="out_dtAuditClean" Type="OutArgument(sd:DataTable)" />
+    <x:Property Name="out_dtAuditExceptions" Type="OutArgument(sd:DataTable)" />
+  </x:Members>
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Statements</x:String>
+      <x:String>System.Activities.Expressions</x:String>
+      <x:String>System.Activities.Validation</x:String>
+      <x:String>System.Activities.XamlIntegration</x:String>
+      <x:String>Microsoft.VisualBasic</x:String>
+      <x:String>Microsoft.VisualBasic.Activities</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Collections</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.Data</x:String>
+      <x:String>System.Diagnostics</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>System.Net.Mail</x:String>
+      <x:String>System.Xml</x:String>
+      <x:String>System.Text</x:String>
+      <x:String>System.Xml.Linq</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+      <x:String>System.Windows.Markup</x:String>
+      <x:String>GlobalVariablesNamespace</x:String>
+      <x:String>GlobalConstantsNamespace</x:String>
+      <x:String>System.Runtime.Serialization</x:String>
+      <x:String>System.Reflection</x:String>
+      <x:String>UiPath.Excel</x:String>
+      <x:String>UiPath.Excel.Activities</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>Microsoft.CSharp</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>System.Data</AssemblyReference>
+      <AssemblyReference>System.Data.Common</AssemblyReference>
+      <AssemblyReference>System.Runtime.Serialization</AssemblyReference>
+      <AssemblyReference>System.ServiceModel</AssemblyReference>
+      <AssemblyReference>System.ServiceModel.Activities</AssemblyReference>
+      <AssemblyReference>System.Xaml</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>System.Xml</AssemblyReference>
+      <AssemblyReference>System.Xml.Linq</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.UiAutomation.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.Excel.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.Excel</AssemblyReference>
+      <AssemblyReference>System.Collections</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.TypeConverter</AssemblyReference>
+      <AssemblyReference>System.Memory</AssemblyReference>
+      <AssemblyReference>System.Private.Uri</AssemblyReference>
+      <AssemblyReference>System.Private.ServiceModel</AssemblyReference>
+      <AssemblyReference>System.Runtime.Serialization.Formatters</AssemblyReference>
+      <AssemblyReference>System.Private.DataContractSerialization</AssemblyReference>
+      <AssemblyReference>System.Runtime.Serialization.Primitives</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+  <StateMachine InitialState="{x:Reference State_Init}" DisplayName="Performer REFramework State Machine" sap:VirtualizedContainerService.HintSize="1100,750" sap2010:WorkflowViewState.IdRef="StateMachine_1">
+    <StateMachine.Variables>
+      <Variable x:TypeArguments="s:Exception" Name="systemException" />
+      <Variable x:TypeArguments="ui:BusinessRuleException" Name="businessException" />
+      <Variable x:TypeArguments="ui:QueueItem" Name="transactionItem" />
+      <Variable x:TypeArguments="sd:DataRow" Name="currentDataRow" />
+      <Variable x:TypeArguments="x:Int32" Default="1" Name="transactionNumber" />
+      <Variable x:TypeArguments="x:Int32" Default="0" Name="retryCount" />
+      <Variable x:TypeArguments="x:Int32" Default="3" Name="maxRetry" />
+      <Variable x:TypeArguments="x:Int32" Default="0" Name="consecutiveSystemExceptions" />
+      <Variable x:TypeArguments="x:Int32" Default="3" Name="maxConsecutiveSystemExceptions" />
+      <Variable x:TypeArguments="sd:DataTable" Name="dtAuditClean" />
+      <Variable x:TypeArguments="sd:DataTable" Name="dtAuditExceptions" />
+      <Variable x:TypeArguments="x:String" Name="strAuditStatus" />
+      <Variable x:TypeArguments="x:String" Name="strAuditReason" />
+      <Variable x:TypeArguments="x:String" Name="strReconciliationStatus" />
+      <Variable x:TypeArguments="x:String" Name="strPortalAmount" />
+      <Variable x:TypeArguments="x:String" Name="strPortalStatus" />
+      <Variable x:TypeArguments="x:String" Name="strTrxId" />
+      <Variable x:TypeArguments="x:String" Name="strAccNum" />
+      <Variable x:TypeArguments="x:String" Name="strChan" />
+      <Variable x:TypeArguments="x:String" Name="strCoreAmt" />
+      <Variable x:TypeArguments="x:String" Name="strSwitchAmt" />
+      <Variable x:TypeArguments="x:String" Name="strTrxTime" />
+    </StateMachine.Variables>
+    <sap:WorkflowViewStateService.ViewState>
+      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+        <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+        <av:Point x:Key="ShapeLocation">70,22.5</av:Point>
+        <x:Double x:Key="StateContainerWidth">1000</x:Double>
+        <x:Double x:Key="StateContainerHeight">700</x:Double>
+        <av:PointCollection x:Key="ConnectorLocation">130,52.5 160,52.5 160,50 200,50</av:PointCollection>
+      </scg:Dictionary>
+    </sap:WorkflowViewStateService.ViewState>
+    <State x:Name="State_Init" DisplayName="State 1: Initialization" sap:VirtualizedContainerService.HintSize="220,90" sap2010:WorkflowViewState.IdRef="State_1">
+      <sap:WorkflowViewStateService.ViewState>
+        <scg:Dictionary x:TypeArguments="x:String, x:Object">
+          <av:Point x:Key="ShapeLocation">200,20</av:Point>
+          <av:Size x:Key="ShapeSize">220,90</av:Size>
+          <x:Boolean x:Key="IsPinned">False</x:Boolean>
+        </scg:Dictionary>
+      </sap:WorkflowViewStateService.ViewState>
+      <State.Entry>
+        <Sequence DisplayName="Initialization Entry Sequence" sap:VirtualizedContainerService.HintSize="550,1400" sap2010:WorkflowViewState.IdRef="Sequence_InitEntry">
+          <sap:WorkflowViewStateService.ViewState>
+            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+              <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+            </scg:Dictionary>
+          </sap:WorkflowViewStateService.ViewState>
+          <ui:LogMessage DisplayName="Log State 1 Start" sap:VirtualizedContainerService.HintSize="500,140" sap2010:WorkflowViewState.IdRef="LogMessage_InitStart" Level="Info">
+            <ui:LogMessage.Message>
+              <InArgument x:TypeArguments="x:Object">
+                <CSharpValue x:TypeArguments="x:Object" sap2010:WorkflowViewState.IdRef="CSharpValue`1_1">"[STATE 1: INIT] Starting Initialization (Retry: " + retryCount.ToString() + ")" </CSharpValue>
+              </InArgument>
+            </ui:LogMessage.Message>
+          </ui:LogMessage>
+          <If DisplayName="If Audit Tables Not Initialized" sap:VirtualizedContainerService.HintSize="500,300" sap2010:WorkflowViewState.IdRef="If_InitAuditTables">
+            <If.Condition>
+              <InArgument x:TypeArguments="x:Boolean">
+                <CSharpValue x:TypeArguments="x:Boolean" sap2010:WorkflowViewState.IdRef="CSharpValue`1_2">dtAuditClean == null</CSharpValue>
+              </InArgument>
+            </If.Condition>
+            <If.Then>
+              <Sequence DisplayName="Initialize Audit DataTables" sap:VirtualizedContainerService.HintSize="300,100" sap2010:WorkflowViewState.IdRef="Sequence_InitAuditDT">
+                <ui:InvokeCode ContinueOnError="{x:Null}" DisplayName="Initialize Audit Tables Schemas" Language="CSharp" sap:VirtualizedContainerService.HintSize="260,80" sap2010:WorkflowViewState.IdRef="InvokeCode_InitAudit">
+                  <ui:InvokeCode.Arguments>
+                    <OutArgument x:TypeArguments="sd:DataTable" x:Key="out_dtClean">
+                      <CSharpReference x:TypeArguments="sd:DataTable" sap2010:WorkflowViewState.IdRef="CSharpReference`1_1">dtAuditClean</CSharpReference>
+                    </OutArgument>
+                    <OutArgument x:TypeArguments="sd:DataTable" x:Key="out_dtExceptions">
+                      <CSharpReference x:TypeArguments="sd:DataTable" sap2010:WorkflowViewState.IdRef="CSharpReference`1_2">dtAuditExceptions</CSharpReference>
+                    </OutArgument>
+                  </ui:InvokeCode.Arguments>
+                  <ui:InvokeCode.Code>
+                    <x:String xml:space="preserve">out_dtClean = new System.Data.DataTable("Audit_Clean");
+out_dtClean.Columns.Add("ID_Transaksi", typeof(string));
+out_dtClean.Columns.Add("Waktu_Transaksi", typeof(string));
+out_dtClean.Columns.Add("No_Rekening", typeof(string));
+out_dtClean.Columns.Add("Channel", typeof(string));
+out_dtClean.Columns.Add("Nominal_Core", typeof(string));
+out_dtClean.Columns.Add("Nominal_Switch", typeof(string));
+out_dtClean.Columns.Add("Nominal_Portal", typeof(string));
+out_dtClean.Columns.Add("Status_Rekonsiliasi", typeof(string));
+out_dtClean.Columns.Add("Keterangan_Audit", typeof(string));
+out_dtClean.Columns.Add("Timestamp_Audit", typeof(string));
+
+out_dtExceptions = new System.Data.DataTable("Audit_Exceptions");
+out_dtExceptions.Columns.Add("ID_Transaksi", typeof(string));
+out_dtExceptions.Columns.Add("Waktu_Transaksi", typeof(string));
+out_dtExceptions.Columns.Add("No_Rekening", typeof(string));
+out_dtExceptions.Columns.Add("Channel", typeof(string));
+out_dtExceptions.Columns.Add("Nominal_Core", typeof(string));
+out_dtExceptions.Columns.Add("Nominal_Switch", typeof(string));
+out_dtExceptions.Columns.Add("Nominal_Portal", typeof(string));
+out_dtExceptions.Columns.Add("Status_Rekonsiliasi", typeof(string));
+out_dtExceptions.Columns.Add("Keterangan_Audit", typeof(string));
+out_dtExceptions.Columns.Add("Timestamp_Audit", typeof(string));</x:String>
+                  </ui:InvokeCode.Code>
+                </ui:InvokeCode>
+              </Sequence>
+            </If.Then>
+            <If.Else>
+              <Sequence DisplayName="Else Already Initialized" sap:VirtualizedContainerService.HintSize="300,80" sap2010:WorkflowViewState.IdRef="Sequence_AuditAlreadyInit" />
+            </If.Else>
+          </If>
+          <TryCatch DisplayName="Try Prepare Target Application (Chrome)" sap:VirtualizedContainerService.HintSize="500,750" sap2010:WorkflowViewState.IdRef="TryCatch_InitApps">
+            <TryCatch.Try>
+              <Sequence DisplayName="Open Browser and Portal" sap:VirtualizedContainerService.HintSize="450,550" sap2010:WorkflowViewState.IdRef="Sequence_OpenBrowser">
+                <sap:WorkflowViewStateService.ViewState>
+                  <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                    <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                  </scg:Dictionary>
+                </sap:WorkflowViewStateService.ViewState>
+                <ui:KillProcess AppliesTo="{x:Null}" ContinueOnError="True" DisplayName="Close Previous Chrome Instances" Process="{x:Null}" ProcessName="chrome" sap:VirtualizedContainerService.HintSize="400,80" sap2010:WorkflowViewState.IdRef="KillProcess_Init" />
+                <ui:StartProcess WorkingDirectory="{x:Null}" DisplayName="Open Google Chrome with Portal" FileName="chrome.exe" sap:VirtualizedContainerService.HintSize="400,100" sap2010:WorkflowViewState.IdRef="StartProcess_1">
+                  <ui:StartProcess.Arguments>
+                    <InArgument x:TypeArguments="x:String">
+                      <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_3">"\"file:///" + System.IO.Path.GetFullPath(@"WebPortal\\banking-monitoring-portal.html").Replace('\\', '/') + "\""</CSharpValue>
+                    </InArgument>
+                  </ui:StartProcess.Arguments>
+                </ui:StartProcess>
+                <Delay DisplayName="Delay 2 Seconds for Portal Initialization" Duration="00:00:02" sap:VirtualizedContainerService.HintSize="400,60" sap2010:WorkflowViewState.IdRef="Delay_Init" />
+                <Assign DisplayName="Clear systemException" sap:VirtualizedContainerService.HintSize="400,80" sap2010:WorkflowViewState.IdRef="Assign_ClearSysEx">
+                  <Assign.To>
+                    <OutArgument x:TypeArguments="s:Exception">
+                      <CSharpReference x:TypeArguments="s:Exception" sap2010:WorkflowViewState.IdRef="CSharpReference`1_3">systemException</CSharpReference>
+                    </OutArgument>
+                  </Assign.To>
+                  <Assign.Value>
+                    <InArgument x:TypeArguments="s:Exception">
+                      <CSharpValue x:TypeArguments="s:Exception" sap2010:WorkflowViewState.IdRef="CSharpValue`1_4">null</CSharpValue>
+                    </InArgument>
+                  </Assign.Value>
+                </Assign>
+                <ui:LogMessage DisplayName="Log Init Success" sap:VirtualizedContainerService.HintSize="400,80" sap2010:WorkflowViewState.IdRef="LogMessage_InitSuccess" Level="Info">
+                  <ui:LogMessage.Message>
+                    <InArgument x:TypeArguments="x:Object">
+                      <CSharpValue x:TypeArguments="x:Object" sap2010:WorkflowViewState.IdRef="CSharpValue`1_5">"[STATE 1: INIT] Applications and environment successfully initialized."</CSharpValue>
+                    </InArgument>
+                  </ui:LogMessage.Message>
+                </ui:LogMessage>
+              </Sequence>
+            </TryCatch.Try>
+            <TryCatch.Catches>
+              <Catch x:TypeArguments="s:Exception" sap2010:WorkflowViewState.IdRef="Catch`1_InitFatal">
+                <ActivityAction x:TypeArguments="s:Exception">
+                  <ActivityAction.Argument>
+                    <DelegateInArgument x:TypeArguments="s:Exception" Name="ex" />
+                  </ActivityAction.Argument>
+                  <Sequence DisplayName="Handle Fatal Init Error" sap:VirtualizedContainerService.HintSize="400,150" sap2010:WorkflowViewState.IdRef="Sequence_InitFatal">
+                    <Assign DisplayName="Set systemException Fatal" sap:VirtualizedContainerService.HintSize="360,60" sap2010:WorkflowViewState.IdRef="Assign_SetSysExFatal">
+                      <Assign.To>
+                        <OutArgument x:TypeArguments="s:Exception">
+                          <CSharpReference x:TypeArguments="s:Exception" sap2010:WorkflowViewState.IdRef="CSharpReference`1_4">systemException</CSharpReference>
+                        </OutArgument>
+                      </Assign.To>
+                      <Assign.Value>
+                        <InArgument x:TypeArguments="s:Exception">
+                          <CSharpValue x:TypeArguments="s:Exception" sap2010:WorkflowViewState.IdRef="CSharpValue`1_6">ex</CSharpValue>
+                        </InArgument>
+                      </Assign.Value>
+                    </Assign>
+                    <ui:LogMessage DisplayName="Log Init Fatal Error" sap:VirtualizedContainerService.HintSize="360,60" sap2010:WorkflowViewState.IdRef="LogMessage_InitFatal" Level="Error">
+                      <ui:LogMessage.Message>
+                        <InArgument x:TypeArguments="x:Object">
+                          <CSharpValue x:TypeArguments="x:Object" sap2010:WorkflowViewState.IdRef="CSharpValue`1_7">"[STATE 1: INIT] Fatal Initialization Error: " + ex.Message</CSharpValue>
+                        </InArgument>
+                      </ui:LogMessage.Message>
+                    </ui:LogMessage>
+                  </Sequence>
+                </ActivityAction>
+              </Catch>
+            </TryCatch.Catches>
+          </TryCatch>
+        </Sequence>
+      </State.Entry>
+      <State.Transitions>
+        <Transition DisplayName="Init Success" sap2010:WorkflowViewState.IdRef="Transition_1">
+          <Transition.Condition>
+            <CSharpValue x:TypeArguments="x:Boolean" sap2010:WorkflowViewState.IdRef="CSharpValue`1_8">systemException == null</CSharpValue>
+          </Transition.Condition>
+          <Transition.To>
+            <x:Reference>State_GetData</x:Reference>
+          </Transition.To>
+        </Transition>
+        <Transition DisplayName="Init System Error" sap2010:WorkflowViewState.IdRef="Transition_2">
+          <Transition.Condition>
+            <CSharpValue x:TypeArguments="x:Boolean" sap2010:WorkflowViewState.IdRef="CSharpValue`1_9">systemException != null</CSharpValue>
+          </Transition.Condition>
+          <Transition.To>
+            <x:Reference>State_End</x:Reference>
+          </Transition.To>
+        </Transition>
+      </State.Transitions>
+    </State>
+    <State x:Name="State_GetData" DisplayName="State 2: Get Transaction Data" sap:VirtualizedContainerService.HintSize="220,90" sap2010:WorkflowViewState.IdRef="State_2">
+      <sap:WorkflowViewStateService.ViewState>
+        <scg:Dictionary x:TypeArguments="x:String, x:Object">
+          <av:Point x:Key="ShapeLocation">550,20</av:Point>
+          <av:Size x:Key="ShapeSize">220,90</av:Size>
+          <x:Boolean x:Key="IsPinned">False</x:Boolean>
+        </scg:Dictionary>
+      </sap:WorkflowViewStateService.ViewState>
+      <State.Entry>
+        <Sequence DisplayName="Get Transaction Data Entry Sequence" sap:VirtualizedContainerService.HintSize="550,1100" sap2010:WorkflowViewState.IdRef="Sequence_GetDataEntry">
+          <sap:WorkflowViewStateService.ViewState>
+            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+              <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+            </scg:Dictionary>
+          </sap:WorkflowViewStateService.ViewState>
+          <ui:LogMessage DisplayName="Log State 2 Start" sap:VirtualizedContainerService.HintSize="500,140" sap2010:WorkflowViewState.IdRef="LogMessage_GetDataStart" Level="Info">
+            <ui:LogMessage.Message>
+              <InArgument x:TypeArguments="x:Object">
+                <CSharpValue x:TypeArguments="x:Object" sap2010:WorkflowViewState.IdRef="CSharpValue`1_10">"[STATE 2: GET DATA] Fetching transaction #" + transactionNumber.ToString()</CSharpValue>
+              </InArgument>
+            </ui:LogMessage.Message>
+          </ui:LogMessage>
+          <Assign DisplayName="Reset businessException" sap:VirtualizedContainerService.HintSize="500,80" sap2010:WorkflowViewState.IdRef="Assign_ResetBRE">
+            <Assign.To>
+              <OutArgument x:TypeArguments="ui:BusinessRuleException">
+                <CSharpReference x:TypeArguments="ui:BusinessRuleException" sap2010:WorkflowViewState.IdRef="CSharpReference`1_5">businessException</CSharpReference>
+              </OutArgument>
+            </Assign.To>
+            <Assign.Value>
+              <InArgument x:TypeArguments="ui:BusinessRuleException">
+                <CSharpValue x:TypeArguments="ui:BusinessRuleException" sap2010:WorkflowViewState.IdRef="CSharpValue`1_11">null</CSharpValue>
+              </InArgument>
+            </Assign.Value>
+          </Assign>
+          <Assign DisplayName="Reset currentDataRow" sap:VirtualizedContainerService.HintSize="500,80" sap2010:WorkflowViewState.IdRef="Assign_ResetRow">
+            <Assign.To>
+              <OutArgument x:TypeArguments="sd:DataRow">
+                <CSharpReference x:TypeArguments="sd:DataRow" sap2010:WorkflowViewState.IdRef="CSharpReference`1_6">currentDataRow</CSharpReference>
+              </OutArgument>
+            </Assign.To>
+            <Assign.Value>
+              <InArgument x:TypeArguments="sd:DataRow">
+                <CSharpValue x:TypeArguments="sd:DataRow" sap2010:WorkflowViewState.IdRef="CSharpValue`1_12">null</CSharpValue>
+              </InArgument>
+            </Assign.Value>
+          </Assign>
+          <TryCatch DisplayName="Try Get Queue Item from Orchestrator" sap:VirtualizedContainerService.HintSize="500,300" sap2010:WorkflowViewState.IdRef="TryCatch_GetQueueItem">
+            <TryCatch.Try>
+              <ui:GetTransactionItem FilterStrategy="StartsWith" Reference="{x:Null}" TimeoutMS="{x:Null}" DisplayName="Get Transaction Item" sap:VirtualizedContainerService.HintSize="300,100" sap2010:WorkflowViewState.IdRef="GetTransactionItem_1">
+                <ui:GetTransactionItem.QueueType>
+                  <InArgument x:TypeArguments="x:String">
+                    <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_13">string.IsNullOrEmpty(in_QueueName) ? "BankingReconciliationQueue" : in_QueueName</CSharpValue>
+                  </InArgument>
+                </ui:GetTransactionItem.QueueType>
+                <ui:GetTransactionItem.TransactionItem>
+                  <OutArgument x:TypeArguments="ui:QueueItem">
+                    <CSharpReference x:TypeArguments="ui:QueueItem" sap2010:WorkflowViewState.IdRef="CSharpReference`1_7">transactionItem</CSharpReference>
+                  </OutArgument>
+                </ui:GetTransactionItem.TransactionItem>
+              </ui:GetTransactionItem>
+            </TryCatch.Try>
+            <TryCatch.Catches>
+              <Catch x:TypeArguments="s:Exception" sap2010:WorkflowViewState.IdRef="Catch`1_GetQEx">
+                <ActivityAction x:TypeArguments="s:Exception">
+                  <ActivityAction.Argument>
+                    <DelegateInArgument x:TypeArguments="s:Exception" Name="ex" />
+                  </ActivityAction.Argument>
+                  <Assign DisplayName="Null transactionItem on exception" sap:VirtualizedContainerService.HintSize="260,60" sap2010:WorkflowViewState.IdRef="Assign_NullQItem">
+                    <Assign.To>
+                      <OutArgument x:TypeArguments="ui:QueueItem">
+                        <CSharpReference x:TypeArguments="ui:QueueItem" sap2010:WorkflowViewState.IdRef="CSharpReference`1_8">transactionItem</CSharpReference>
+                      </OutArgument>
+                    </Assign.To>
+                    <Assign.Value>
+                      <InArgument x:TypeArguments="ui:QueueItem">
+                        <CSharpValue x:TypeArguments="ui:QueueItem" sap2010:WorkflowViewState.IdRef="CSharpValue`1_14">null</CSharpValue>
+                      </InArgument>
+                    </Assign.Value>
+                  </Assign>
+                </ActivityAction>
+              </Catch>
+            </TryCatch.Catches>
+          </TryCatch>
+          <If DisplayName="If Queue Item is Null, Fallback to Ingested Data" sap:VirtualizedContainerService.HintSize="500,250" sap2010:WorkflowViewState.IdRef="If_FallbackLocalData">
+            <If.Condition>
+              <InArgument x:TypeArguments="x:Boolean">
+                <CSharpValue x:TypeArguments="x:Boolean" sap2010:WorkflowViewState.IdRef="CSharpValue`1_15">transactionItem == null &amp;&amp; in_dtTransactionData != null &amp;&amp; transactionNumber &lt;= in_dtTransactionData.Rows.Count</CSharpValue>
+              </InArgument>
+            </If.Condition>
+            <If.Then>
+              <Sequence DisplayName="Retrieve from Local DataTable" sap:VirtualizedContainerService.HintSize="300,100" sap2010:WorkflowViewState.IdRef="Sequence_RetrieveLocal">
+                <Assign DisplayName="Set currentDataRow from dtTransactionData" sap:VirtualizedContainerService.HintSize="260,60" sap2010:WorkflowViewState.IdRef="Assign_SetLocalRow">
+                  <Assign.To>
+                    <OutArgument x:TypeArguments="sd:DataRow">
+                      <CSharpReference x:TypeArguments="sd:DataRow" sap2010:WorkflowViewState.IdRef="CSharpReference`1_9">currentDataRow</CSharpReference>
+                    </OutArgument>
+                  </Assign.To>
+                  <Assign.Value>
+                    <InArgument x:TypeArguments="sd:DataRow">
+                      <CSharpValue x:TypeArguments="sd:DataRow" sap2010:WorkflowViewState.IdRef="CSharpValue`1_16">in_dtTransactionData.Rows[transactionNumber - 1]</CSharpValue>
+                    </InArgument>
+                  </Assign.Value>
+                </Assign>
+              </Sequence>
+            </If.Then>
+            <If.Else>
+              <Sequence DisplayName="Else Queue or Complete" sap:VirtualizedContainerService.HintSize="300,80" sap2010:WorkflowViewState.IdRef="Sequence_LocalElse" />
+            </If.Else>
+          </If>
+        </Sequence>
+      </State.Entry>
+      <State.Transitions>
+        <Transition DisplayName="New Transaction" sap2010:WorkflowViewState.IdRef="Transition_3">
+          <Transition.Condition>
+            <CSharpValue x:TypeArguments="x:Boolean" sap2010:WorkflowViewState.IdRef="CSharpValue`1_17">(transactionItem != null) || (currentDataRow != null)</CSharpValue>
+          </Transition.Condition>
+          <Transition.To>
+            <x:Reference>State_Process</x:Reference>
+          </Transition.To>
+        </Transition>
+        <Transition DisplayName="No Data" sap2010:WorkflowViewState.IdRef="Transition_4">
+          <Transition.Condition>
+            <CSharpValue x:TypeArguments="x:Boolean" sap2010:WorkflowViewState.IdRef="CSharpValue`1_18">(transactionItem == null) &amp;&amp; (currentDataRow == null)</CSharpValue>
+          </Transition.Condition>
+          <Transition.To>
+            <x:Reference>State_End</x:Reference>
+          </Transition.To>
+        </Transition>
+      </State.Transitions>
+    </State>
+    <State x:Name="State_Process" DisplayName="State 3: Process Transaction" sap:VirtualizedContainerService.HintSize="220,90" sap2010:WorkflowViewState.IdRef="State_3">
+      <sap:WorkflowViewStateService.ViewState>
+        <scg:Dictionary x:TypeArguments="x:String, x:Object">
+          <av:Point x:Key="ShapeLocation">550,250</av:Point>
+          <av:Size x:Key="ShapeSize">220,90</av:Size>
+          <x:Boolean x:Key="IsPinned">False</x:Boolean>
+        </scg:Dictionary>
+      </sap:WorkflowViewStateService.ViewState>
+      <State.Entry>
+        <Sequence DisplayName="Process Transaction Entry Sequence" sap:VirtualizedContainerService.HintSize="550,1500" sap2010:WorkflowViewState.IdRef="Sequence_ProcessEntry">
+          <sap:WorkflowViewStateService.ViewState>
+            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+              <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+            </scg:Dictionary>
+          </sap:WorkflowViewStateService.ViewState>
+          <ui:LogMessage DisplayName="Log State 3 Start" sap:VirtualizedContainerService.HintSize="500,140" sap2010:WorkflowViewState.IdRef="LogMessage_ProcessStart" Level="Info">
+            <ui:LogMessage.Message>
+              <InArgument x:TypeArguments="x:Object">
+                <CSharpValue x:TypeArguments="x:Object" sap2010:WorkflowViewState.IdRef="CSharpValue`1_19">"[STATE 3: PROCESS TRANSACTION] Processing Transaction #" + transactionNumber.ToString()</CSharpValue>
+              </InArgument>
+            </ui:LogMessage.Message>
+          </ui:LogMessage>
+          <TryCatch DisplayName="Try Process Business Transaction" sap:VirtualizedContainerService.HintSize="500,1200" sap2010:WorkflowViewState.IdRef="TryCatch_ProcessTx">
+            <TryCatch.Try>
+              <Sequence DisplayName="Execute Process and Record Success" sap:VirtualizedContainerService.HintSize="450,750" sap2010:WorkflowViewState.IdRef="Sequence_TxSuccess">
+                <sap:WorkflowViewStateService.ViewState>
+                  <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                    <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                  </scg:Dictionary>
+                </sap:WorkflowViewStateService.ViewState>
+                <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" DisplayName="Invoke ProcessTransaction Workflow" sap:VirtualizedContainerService.HintSize="400,180" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_1" UnSafe="False" WorkflowFileName="Workflows\\ProcessTransaction.xaml">
+                  <ui:InvokeWorkflowFile.Arguments>
+                    <InArgument x:TypeArguments="ui:QueueItem" x:Key="in_TransactionItem">
+                      <CSharpValue x:TypeArguments="ui:QueueItem" sap2010:WorkflowViewState.IdRef="CSharpValue`1_20">transactionItem</CSharpValue>
+                    </InArgument>
+                    <InArgument x:TypeArguments="sd:DataRow" x:Key="in_TransactionDataRow">
+                      <CSharpValue x:TypeArguments="sd:DataRow" sap2010:WorkflowViewState.IdRef="CSharpValue`1_21">currentDataRow</CSharpValue>
+                    </InArgument>
+                    <InArgument x:TypeArguments="x:Int32" x:Key="in_TransactionNumber">
+                      <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_22">transactionNumber</CSharpValue>
+                    </InArgument>
+                    <InArgument x:TypeArguments="x:Int32" x:Key="in_SimulateBrowserCrashAt">
+                      <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_23">in_SimulateCrashAt</CSharpValue>
+                    </InArgument>
+                    <InOutArgument x:TypeArguments="x:Int32" x:Key="io_RetryCount">
+                      <CSharpReference x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpReference`1_10">retryCount</CSharpReference>
+                    </InOutArgument>
+                    <OutArgument x:TypeArguments="x:String" x:Key="out_AuditStatus">
+                      <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_11">strAuditStatus</CSharpReference>
+                    </OutArgument>
+                    <OutArgument x:TypeArguments="x:String" x:Key="out_AuditReason">
+                      <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_12">strAuditReason</CSharpReference>
+                    </OutArgument>
+                    <OutArgument x:TypeArguments="x:String" x:Key="out_ReconciliationStatus">
+                      <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_13">strReconciliationStatus</CSharpReference>
+                    </OutArgument>
+                    <OutArgument x:TypeArguments="x:String" x:Key="out_PortalAmount">
+                      <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_14">strPortalAmount</CSharpReference>
+                    </OutArgument>
+                    <OutArgument x:TypeArguments="x:String" x:Key="out_PortalStatus">
+                      <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_15">strPortalStatus</CSharpReference>
+                    </OutArgument>
+                    <OutArgument x:TypeArguments="x:String" x:Key="out_TransactionId">
+                      <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_16">strTrxId</CSharpReference>
+                    </OutArgument>
+                    <OutArgument x:TypeArguments="x:String" x:Key="out_AccountNumber">
+                      <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_17">strAccNum</CSharpReference>
+                    </OutArgument>
+                    <OutArgument x:TypeArguments="x:String" x:Key="out_Channel">
+                      <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_18">strChan</CSharpReference>
+                    </OutArgument>
+                    <OutArgument x:TypeArguments="x:String" x:Key="out_CoreAmount">
+                      <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_19">strCoreAmt</CSharpReference>
+                    </OutArgument>
+                    <OutArgument x:TypeArguments="x:String" x:Key="out_SwitchingAmount">
+                      <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_20">strSwitchAmt</CSharpReference>
+                    </OutArgument>
+                    <OutArgument x:TypeArguments="x:String" x:Key="out_TransactionTimestamp">
+                      <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_21">strTrxTime</CSharpReference>
+                    </OutArgument>
+                  </ui:InvokeWorkflowFile.Arguments>
+                </ui:InvokeWorkflowFile>
+                <If DisplayName="Set Queue Successful if Queue Active" sap:VirtualizedContainerService.HintSize="400,100" sap2010:WorkflowViewState.IdRef="If_SetQSuccess">
+                  <If.Condition>
+                    <InArgument x:TypeArguments="x:Boolean">
+                      <CSharpValue x:TypeArguments="x:Boolean" sap2010:WorkflowViewState.IdRef="CSharpValue`1_24">transactionItem != null</CSharpValue>
+                    </InArgument>
+                  </If.Condition>
+                  <If.Then>
+                    <ui:SetTransactionStatus ContinueOnError="True" DisplayName="Set Queue Item Successful" ErrorType="Business" Reason="{x:Null}" ServiceBaseAddress="{x:Null}" Status="Successful" TimeoutMS="{x:Null}" sap:VirtualizedContainerService.HintSize="200,40" sap2010:WorkflowViewState.IdRef="SetTransactionStatus_1">
+                      <ui:SetTransactionStatus.Analytics>
+                        <scg:Dictionary x:TypeArguments="x:String, InArgument" />
+                      </ui:SetTransactionStatus.Analytics>
+                      <ui:SetTransactionStatus.Output>
+                        <scg:Dictionary x:TypeArguments="x:String, InArgument" />
+                      </ui:SetTransactionStatus.Output>
+                      <ui:SetTransactionStatus.TransactionItem>
+                        <InArgument x:TypeArguments="ui:QueueItem">
+                          <CSharpValue x:TypeArguments="ui:QueueItem" sap2010:WorkflowViewState.IdRef="CSharpValue`1_25">transactionItem</CSharpValue>
+                        </InArgument>
+                      </ui:SetTransactionStatus.TransactionItem>
+                    </ui:SetTransactionStatus>
+                  </If.Then>
+                  <If.Else>
+                    <Sequence DisplayName="Else No Queue" sap:VirtualizedContainerService.HintSize="200,40" sap2010:WorkflowViewState.IdRef="Sequence_NoQSuccess" />
+                  </If.Else>
+                </If>
+                <ui:AddDataRow DataRow="{x:Null}" DisplayName="Add Success Row to dtAuditClean" sap:VirtualizedContainerService.HintSize="400,100" sap2010:WorkflowViewState.IdRef="AddDataRow_1">
+                  <ui:AddDataRow.ArrayRow>
+                    <InArgument x:TypeArguments="s:Object[]">
+                      <CSharpValue x:TypeArguments="s:Object[]" sap2010:WorkflowViewState.IdRef="CSharpValue`1_26">new object[] { strTrxId, strTrxTime, strAccNum, strChan, strCoreAmt, strSwitchAmt, strPortalAmount, "MATCHED", "Semua parameter valid dan cocok di Core, Switching, dan Portal", System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") }</CSharpValue>
+                    </InArgument>
+                  </ui:AddDataRow.ArrayRow>
+                  <ui:AddDataRow.DataTable>
+                    <InOutArgument x:TypeArguments="sd:DataTable">
+                      <CSharpReference x:TypeArguments="sd:DataTable" sap2010:WorkflowViewState.IdRef="CSharpReference`1_22">dtAuditClean</CSharpReference>
+                    </InOutArgument>
+                  </ui:AddDataRow.DataTable>
+                </ui:AddDataRow>
+                <ui:LogMessage DisplayName="Log Success Output" sap:VirtualizedContainerService.HintSize="400,80" sap2010:WorkflowViewState.IdRef="LogMessage_TxSuccess" Level="Info">
+                  <ui:LogMessage.Message>
+                    <InArgument x:TypeArguments="x:Object">
+                      <CSharpValue x:TypeArguments="x:Object" sap2010:WorkflowViewState.IdRef="CSharpValue`1_27">"[TRANSACTION SUCCESS] Transaction #" + transactionNumber.ToString() + " (" + strTrxId + ") MATCHED."</CSharpValue>
+                    </InArgument>
+                  </ui:LogMessage.Message>
+                </ui:LogMessage>
+                <Assign DisplayName="Increment transactionNumber" sap:VirtualizedContainerService.HintSize="400,60" sap2010:WorkflowViewState.IdRef="Assign_IncTxNum">
+                  <Assign.To>
+                    <OutArgument x:TypeArguments="x:Int32">
+                      <CSharpReference x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpReference`1_23">transactionNumber</CSharpReference>
+                    </OutArgument>
+                  </Assign.To>
+                  <Assign.Value>
+                    <InArgument x:TypeArguments="x:Int32">
+                      <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_28">transactionNumber + 1</CSharpValue>
+                    </InArgument>
+                  </Assign.Value>
+                </Assign>
+                <Assign DisplayName="Reset retryCount to 0" sap:VirtualizedContainerService.HintSize="400,60" sap2010:WorkflowViewState.IdRef="Assign_ResetRetry">
+                  <Assign.To>
+                    <OutArgument x:TypeArguments="x:Int32">
+                      <CSharpReference x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpReference`1_24">retryCount</CSharpReference>
+                    </OutArgument>
+                  </Assign.To>
+                  <Assign.Value>
+                    <InArgument x:TypeArguments="x:Int32">
+                      <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_29">0</CSharpValue>
+                    </InArgument>
+                  </Assign.Value>
+                </Assign>
+                <Assign DisplayName="Reset consecutiveSystemExceptions" sap:VirtualizedContainerService.HintSize="400,60" sap2010:WorkflowViewState.IdRef="Assign_ResetConsec">
+                  <Assign.To>
+                    <OutArgument x:TypeArguments="x:Int32">
+                      <CSharpReference x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpReference`1_25">consecutiveSystemExceptions</CSharpReference>
+                    </OutArgument>
+                  </Assign.To>
+                  <Assign.Value>
+                    <InArgument x:TypeArguments="x:Int32">
+                      <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_30">0</CSharpValue>
+                    </InArgument>
+                  </Assign.Value>
+                </Assign>
+              </Sequence>
+            </TryCatch.Try>
+            <TryCatch.Catches>
+              <Catch x:TypeArguments="ui:BusinessRuleException" sap2010:WorkflowViewState.IdRef="Catch`1_BRE">
+                <ActivityAction x:TypeArguments="ui:BusinessRuleException">
+                  <ActivityAction.Argument>
+                    <DelegateInArgument x:TypeArguments="ui:BusinessRuleException" Name="ex" />
+                  </ActivityAction.Argument>
+                  <Sequence DisplayName="Handle Business Rule Exception" sap:VirtualizedContainerService.HintSize="450,500" sap2010:WorkflowViewState.IdRef="Sequence_HandleBRE">
+                    <ui:LogMessage DisplayName="Log BRE Handled" sap:VirtualizedContainerService.HintSize="400,80" sap2010:WorkflowViewState.IdRef="LogMessage_BRE" Level="Warn">
+                      <ui:LogMessage.Message>
+                        <InArgument x:TypeArguments="x:Object">
+                          <CSharpValue x:TypeArguments="x:Object" sap2010:WorkflowViewState.IdRef="CSharpValue`1_31">"[BRE HANDLED - NO RETRY] Transaction #" + transactionNumber.ToString() + " (" + strTrxId + "): " + ex.Message</CSharpValue>
+                        </InArgument>
+                      </ui:LogMessage.Message>
+                    </ui:LogMessage>
+                    <If DisplayName="If Queue Item Active for BRE" sap:VirtualizedContainerService.HintSize="400,100" sap2010:WorkflowViewState.IdRef="If_SetQBRE">
+                      <If.Condition>
+                        <InArgument x:TypeArguments="x:Boolean">
+                          <CSharpValue x:TypeArguments="x:Boolean" sap2010:WorkflowViewState.IdRef="CSharpValue`1_32">transactionItem != null</CSharpValue>
+                        </InArgument>
+                      </If.Condition>
+                      <If.Then>
+                        <ui:SetTransactionStatus ContinueOnError="True" DisplayName="Set Queue Status Failed BRE" ErrorType="Business" ServiceBaseAddress="{x:Null}" Status="Failed" TimeoutMS="{x:Null}" sap:VirtualizedContainerService.HintSize="200,40" sap2010:WorkflowViewState.IdRef="SetTransactionStatus_2">
+                          <ui:SetTransactionStatus.Analytics>
+                            <scg:Dictionary x:TypeArguments="x:String, InArgument" />
+                          </ui:SetTransactionStatus.Analytics>
+                          <ui:SetTransactionStatus.Output>
+                            <scg:Dictionary x:TypeArguments="x:String, InArgument" />
+                          </ui:SetTransactionStatus.Output>
+                          <ui:SetTransactionStatus.Reason>
+                            <InArgument x:TypeArguments="x:String">
+                              <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_33">ex.Message</CSharpValue>
+                            </InArgument>
+                          </ui:SetTransactionStatus.Reason>
+                          <ui:SetTransactionStatus.TransactionItem>
+                            <InArgument x:TypeArguments="ui:QueueItem">
+                              <CSharpValue x:TypeArguments="ui:QueueItem" sap2010:WorkflowViewState.IdRef="CSharpValue`1_34">transactionItem</CSharpValue>
+                            </InArgument>
+                          </ui:SetTransactionStatus.TransactionItem>
+                        </ui:SetTransactionStatus>
+                      </If.Then>
+                      <If.Else>
+                        <Sequence DisplayName="Else No Queue BRE" sap:VirtualizedContainerService.HintSize="200,40" sap2010:WorkflowViewState.IdRef="Sequence_NoQBRE" />
+                      </If.Else>
+                    </If>
+                    <ui:AddDataRow DataRow="{x:Null}" DisplayName="Add BRE Row to dtAuditExceptions" sap:VirtualizedContainerService.HintSize="400,100" sap2010:WorkflowViewState.IdRef="AddDataRow_2">
+                      <ui:AddDataRow.ArrayRow>
+                        <InArgument x:TypeArguments="s:Object[]">
+                          <CSharpValue x:TypeArguments="s:Object[]" sap2010:WorkflowViewState.IdRef="CSharpValue`1_35">new object[] { strTrxId, strTrxTime, strAccNum, strChan, strCoreAmt, strSwitchAmt, strPortalAmount, "BRE - " + (ex.Message.Contains("account") ? "INVALID ACCOUNT FORMAT" : (ex.Message.Contains("negative") || ex.Message.Contains("Zero") ? "ZERO/NEGATIVE AMOUNT" : (ex.Message.Contains("SWITCH") ? "NOT FOUND IN SWITCH" : (ex.Message.Contains("PORTAL") ? "NOT FOUND IN PORTAL" : (ex.Message.Contains("Variance Status") ? "VARIANCE STATUS" : "VARIANCE AMOUNT"))))), ex.Message, System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") }</CSharpValue>
+                        </InArgument>
+                      </ui:AddDataRow.ArrayRow>
+                      <ui:AddDataRow.DataTable>
+                        <InOutArgument x:TypeArguments="sd:DataTable">
+                          <CSharpReference x:TypeArguments="sd:DataTable" sap2010:WorkflowViewState.IdRef="CSharpReference`1_26">dtAuditExceptions</CSharpReference>
+                        </InOutArgument>
+                      </ui:AddDataRow.DataTable>
+                    </ui:AddDataRow>
+                    <Assign DisplayName="Set businessException" sap:VirtualizedContainerService.HintSize="400,60" sap2010:WorkflowViewState.IdRef="Assign_SetBRE">
+                      <Assign.To>
+                        <OutArgument x:TypeArguments="ui:BusinessRuleException">
+                          <CSharpReference x:TypeArguments="ui:BusinessRuleException" sap2010:WorkflowViewState.IdRef="CSharpReference`1_27">businessException</CSharpReference>
+                        </OutArgument>
+                      </Assign.To>
+                      <Assign.Value>
+                        <InArgument x:TypeArguments="ui:BusinessRuleException">
+                          <CSharpValue x:TypeArguments="ui:BusinessRuleException" sap2010:WorkflowViewState.IdRef="CSharpValue`1_36">ex</CSharpValue>
+                        </InArgument>
+                      </Assign.Value>
+                    </Assign>
+                    <Assign DisplayName="Increment txNum for BRE" sap:VirtualizedContainerService.HintSize="400,60" sap2010:WorkflowViewState.IdRef="Assign_IncTxBRE">
+                      <Assign.To>
+                        <OutArgument x:TypeArguments="x:Int32">
+                          <CSharpReference x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpReference`1_28">transactionNumber</CSharpReference>
+                        </OutArgument>
+                      </Assign.To>
+                      <Assign.Value>
+                        <InArgument x:TypeArguments="x:Int32">
+                          <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_37">transactionNumber + 1</CSharpValue>
+                        </InArgument>
+                      </Assign.Value>
+                    </Assign>
+                    <Assign DisplayName="Reset retryCount for BRE" sap:VirtualizedContainerService.HintSize="400,60" sap2010:WorkflowViewState.IdRef="Assign_ResetRetryBRE">
+                      <Assign.To>
+                        <OutArgument x:TypeArguments="x:Int32">
+                          <CSharpReference x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpReference`1_29">retryCount</CSharpReference>
+                        </OutArgument>
+                      </Assign.To>
+                      <Assign.Value>
+                        <InArgument x:TypeArguments="x:Int32">
+                          <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_38">0</CSharpValue>
+                        </InArgument>
+                      </Assign.Value>
+                    </Assign>
+                    <Assign DisplayName="Reset consecutiveSystemExceptions for BRE" sap:VirtualizedContainerService.HintSize="400,60" sap2010:WorkflowViewState.IdRef="Assign_ResetConsecBRE">
+                      <Assign.To>
+                        <OutArgument x:TypeArguments="x:Int32">
+                          <CSharpReference x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpReference`1_30">consecutiveSystemExceptions</CSharpReference>
+                        </OutArgument>
+                      </Assign.To>
+                      <Assign.Value>
+                        <InArgument x:TypeArguments="x:Int32">
+                          <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_39">0</CSharpValue>
+                        </InArgument>
+                      </Assign.Value>
+                    </Assign>
+                  </Sequence>
+                </ActivityAction>
+              </Catch>
+              <Catch x:TypeArguments="s:Exception" sap2010:WorkflowViewState.IdRef="Catch`1_SysEx">
+                <ActivityAction x:TypeArguments="s:Exception">
+                  <ActivityAction.Argument>
+                    <DelegateInArgument x:TypeArguments="s:Exception" Name="ex" />
+                  </ActivityAction.Argument>
+                  <Sequence DisplayName="Handle System Exception" sap:VirtualizedContainerService.HintSize="450,550" sap2010:WorkflowViewState.IdRef="Sequence_HandleSysEx">
+                    <ui:LogMessage DisplayName="Log System Exception" sap:VirtualizedContainerService.HintSize="400,80" sap2010:WorkflowViewState.IdRef="LogMessage_SysEx" Level="Error">
+                      <ui:LogMessage.Message>
+                        <InArgument x:TypeArguments="x:Object">
+                          <CSharpValue x:TypeArguments="x:Object" sap2010:WorkflowViewState.IdRef="CSharpValue`1_40">"[SYSTEM EXCEPTION] Error on transaction #" + transactionNumber.ToString() + ": " + ex.Message</CSharpValue>
+                        </InArgument>
+                      </ui:LogMessage.Message>
+                    </ui:LogMessage>
+                    <Assign DisplayName="Increment retryCount" sap:VirtualizedContainerService.HintSize="400,60" sap2010:WorkflowViewState.IdRef="Assign_IncRetry">
+                      <Assign.To>
+                        <OutArgument x:TypeArguments="x:Int32">
+                          <CSharpReference x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpReference`1_31">retryCount</CSharpReference>
+                        </OutArgument>
+                      </Assign.To>
+                      <Assign.Value>
+                        <InArgument x:TypeArguments="x:Int32">
+                          <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_41">retryCount + 1</CSharpValue>
+                        </InArgument>
+                      </Assign.Value>
+                    </Assign>
+                    <Assign DisplayName="Increment consecutiveSystemExceptions" sap:VirtualizedContainerService.HintSize="400,60" sap2010:WorkflowViewState.IdRef="Assign_IncConsec">
+                      <Assign.To>
+                        <OutArgument x:TypeArguments="x:Int32">
+                          <CSharpReference x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpReference`1_32">consecutiveSystemExceptions</CSharpReference>
+                        </OutArgument>
+                      </Assign.To>
+                      <Assign.Value>
+                        <InArgument x:TypeArguments="x:Int32">
+                          <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_42">consecutiveSystemExceptions + 1</CSharpValue>
+                        </InArgument>
+                      </Assign.Value>
+                    </Assign>
+                    <Assign DisplayName="Set systemException" sap:VirtualizedContainerService.HintSize="400,60" sap2010:WorkflowViewState.IdRef="Assign_SetSysEx">
+                      <Assign.To>
+                        <OutArgument x:TypeArguments="s:Exception">
+                          <CSharpReference x:TypeArguments="s:Exception" sap2010:WorkflowViewState.IdRef="CSharpReference`1_33">systemException</CSharpReference>
+                        </OutArgument>
+                      </Assign.To>
+                      <Assign.Value>
+                        <InArgument x:TypeArguments="s:Exception">
+                          <CSharpValue x:TypeArguments="s:Exception" sap2010:WorkflowViewState.IdRef="CSharpValue`1_43">ex</CSharpValue>
+                        </InArgument>
+                      </Assign.Value>
+                    </Assign>
+                    <If DisplayName="If Max Retries Reached" sap:VirtualizedContainerService.HintSize="400,250" sap2010:WorkflowViewState.IdRef="If_MaxRetries">
+                      <If.Condition>
+                        <InArgument x:TypeArguments="x:Boolean">
+                          <CSharpValue x:TypeArguments="x:Boolean" sap2010:WorkflowViewState.IdRef="CSharpValue`1_44">retryCount &gt;= maxRetry</CSharpValue>
+                        </InArgument>
+                      </If.Condition>
+                      <If.Then>
+                        <Sequence DisplayName="Record Max Retries Reached" sap:VirtualizedContainerService.HintSize="300,150" sap2010:WorkflowViewState.IdRef="Sequence_MaxRetriesReached">
+                          <ui:LogMessage DisplayName="Log Max Retries" sap:VirtualizedContainerService.HintSize="260,60" sap2010:WorkflowViewState.IdRef="LogMessage_MaxRetries" Level="Error">
+                            <ui:LogMessage.Message>
+                              <InArgument x:TypeArguments="x:Object">
+                                <CSharpValue x:TypeArguments="x:Object" sap2010:WorkflowViewState.IdRef="CSharpValue`1_45">"[MAX RETRY REACHED] Transaction #" + transactionNumber.ToString() + " failed after " + maxRetry.ToString() + " attempts."</CSharpValue>
+                              </InArgument>
+                            </ui:LogMessage.Message>
+                          </ui:LogMessage>
+                          <ui:AddDataRow DataRow="{x:Null}" DisplayName="Add System Exception Row to dtAuditExceptions" sap:VirtualizedContainerService.HintSize="260,60" sap2010:WorkflowViewState.IdRef="AddDataRow_3">
+                            <ui:AddDataRow.ArrayRow>
+                              <InArgument x:TypeArguments="s:Object[]">
+                                <CSharpValue x:TypeArguments="s:Object[]" sap2010:WorkflowViewState.IdRef="CSharpValue`1_46">new object[] { strTrxId, strTrxTime, strAccNum, strChan, strCoreAmt, strSwitchAmt, strPortalAmount, "SYSTEM ERROR - FAILED", "System error: " + ex.Message + " (Retries exhausted)", System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") }</CSharpValue>
+                              </InArgument>
+                            </ui:AddDataRow.ArrayRow>
+                            <ui:AddDataRow.DataTable>
+                              <InOutArgument x:TypeArguments="sd:DataTable">
+                                <CSharpReference x:TypeArguments="sd:DataTable" sap2010:WorkflowViewState.IdRef="CSharpReference`1_34">dtAuditExceptions</CSharpReference>
+                              </InOutArgument>
+                            </ui:AddDataRow.DataTable>
+                          </ui:AddDataRow>
+                          <Assign DisplayName="Increment txNum after Max Retries" sap:VirtualizedContainerService.HintSize="260,60" sap2010:WorkflowViewState.IdRef="Assign_IncTxAfterMax">
+                            <Assign.To>
+                              <OutArgument x:TypeArguments="x:Int32">
+                                <CSharpReference x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpReference`1_35">transactionNumber</CSharpReference>
+                              </OutArgument>
+                            </Assign.To>
+                            <Assign.Value>
+                              <InArgument x:TypeArguments="x:Int32">
+                                <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_47">transactionNumber + 1</CSharpValue>
+                              </InArgument>
+                            </Assign.Value>
+                          </Assign>
+                          <Assign DisplayName="Reset retryCount after Max Retries" sap:VirtualizedContainerService.HintSize="260,60" sap2010:WorkflowViewState.IdRef="Assign_ResetRetryAfterMax">
+                            <Assign.To>
+                              <OutArgument x:TypeArguments="x:Int32">
+                                <CSharpReference x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpReference`1_36">retryCount</CSharpReference>
+                              </OutArgument>
+                            </Assign.To>
+                            <Assign.Value>
+                              <InArgument x:TypeArguments="x:Int32">
+                                <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_48">0</CSharpValue>
+                              </InArgument>
+                            </Assign.Value>
+                          </Assign>
+                        </Sequence>
+                      </If.Then>
+                      <If.Else>
+                        <Sequence DisplayName="Else Retry Expected" sap:VirtualizedContainerService.HintSize="300,80" sap2010:WorkflowViewState.IdRef="Sequence_RetryExpected" />
+                      </If.Else>
+                    </If>
+                  </Sequence>
+                </ActivityAction>
+              </Catch>
+            </TryCatch.Catches>
+          </TryCatch>
+        </Sequence>
+      </State.Entry>
+      <State.Transitions>
+        <Transition DisplayName="Process Success" sap2010:WorkflowViewState.IdRef="Transition_5">
+          <Transition.Condition>
+            <CSharpValue x:TypeArguments="x:Boolean" sap2010:WorkflowViewState.IdRef="CSharpValue`1_49">systemException == null &amp;&amp; businessException == null</CSharpValue>
+          </Transition.Condition>
+          <Transition.To>
+            <x:Reference>State_GetData</x:Reference>
+          </Transition.To>
+        </Transition>
+        <Transition DisplayName="Business Exception" sap2010:WorkflowViewState.IdRef="Transition_6">
+          <Transition.Condition>
+            <CSharpValue x:TypeArguments="x:Boolean" sap2010:WorkflowViewState.IdRef="CSharpValue`1_50">businessException != null</CSharpValue>
+          </Transition.Condition>
+          <Transition.To>
+            <x:Reference>State_GetData</x:Reference>
+          </Transition.To>
+        </Transition>
+        <Transition DisplayName="System Exception - Retry" sap2010:WorkflowViewState.IdRef="Transition_7">
+          <Transition.Condition>
+            <CSharpValue x:TypeArguments="x:Boolean" sap2010:WorkflowViewState.IdRef="CSharpValue`1_51">systemException != null &amp;&amp; retryCount &lt; maxRetry</CSharpValue>
+          </Transition.Condition>
+          <Transition.To>
+            <x:Reference>State_Init</x:Reference>
+          </Transition.To>
+        </Transition>
+        <Transition DisplayName="System Exception - Max Reached" sap2010:WorkflowViewState.IdRef="Transition_8">
+          <Transition.Condition>
+            <CSharpValue x:TypeArguments="x:Boolean" sap2010:WorkflowViewState.IdRef="CSharpValue`1_52">systemException != null &amp;&amp; consecutiveSystemExceptions &gt;= maxConsecutiveSystemExceptions</CSharpValue>
+          </Transition.Condition>
+          <Transition.To>
+            <x:Reference>State_End</x:Reference>
+          </Transition.To>
+        </Transition>
+      </State.Transitions>
+    </State>
+    <State x:Name="State_End" DisplayName="State 4: End Process" IsFinal="True" sap:VirtualizedContainerService.HintSize="220,90" sap2010:WorkflowViewState.IdRef="State_4">
+      <sap:WorkflowViewStateService.ViewState>
+        <scg:Dictionary x:TypeArguments="x:String, x:Object">
+          <av:Point x:Key="ShapeLocation">200,250</av:Point>
+          <av:Size x:Key="ShapeSize">220,90</av:Size>
+          <x:Boolean x:Key="IsPinned">False</x:Boolean>
+        </scg:Dictionary>
+      </sap:WorkflowViewStateService.ViewState>
+      <State.Entry>
+        <Sequence DisplayName="End Process Entry Sequence" sap:VirtualizedContainerService.HintSize="550,1400" sap2010:WorkflowViewState.IdRef="Sequence_EndEntry">
+          <sap:WorkflowViewStateService.ViewState>
+            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+              <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+            </scg:Dictionary>
+          </sap:WorkflowViewStateService.ViewState>
+          <ui:LogMessage DisplayName="Log State 4 Start" sap:VirtualizedContainerService.HintSize="500,140" sap2010:WorkflowViewState.IdRef="LogMessage_EndStart" Level="Info">
+            <ui:LogMessage.Message>
+              <InArgument x:TypeArguments="x:Object">
+                <CSharpValue x:TypeArguments="x:Object" sap2010:WorkflowViewState.IdRef="CSharpValue`1_53">"[STATE 4: END PROCESS] Starting End Process, writing reconciliation report..."</CSharpValue>
+              </InArgument>
+            </ui:LogMessage.Message>
+          </ui:LogMessage>
+          <ui:WriteRange AddHeaders="True" DisplayName="Write Audit_Clean Sheet" StartingCell="A1" WorkbookPath="Data\\Output\\Laporan_Rekonsiliasi_REFramework.xlsx" sap:VirtualizedContainerService.HintSize="500,120" sap2010:WorkflowViewState.IdRef="WriteRange_1" SheetName="Audit_Clean">
+            <ui:WriteRange.DataTable>
+              <InArgument x:TypeArguments="sd:DataTable">
+                <CSharpValue x:TypeArguments="sd:DataTable" sap2010:WorkflowViewState.IdRef="CSharpValue`1_54">dtAuditClean</CSharpValue>
+              </InArgument>
+            </ui:WriteRange.DataTable>
+          </ui:WriteRange>
+          <ui:WriteRange AddHeaders="True" DisplayName="Write Audit_Exceptions Sheet" StartingCell="A1" WorkbookPath="Data\\Output\\Laporan_Rekonsiliasi_REFramework.xlsx" sap:VirtualizedContainerService.HintSize="500,120" sap2010:WorkflowViewState.IdRef="WriteRange_2" SheetName="Audit_Exceptions">
+            <ui:WriteRange.DataTable>
+              <InArgument x:TypeArguments="sd:DataTable">
+                <CSharpValue x:TypeArguments="sd:DataTable" sap2010:WorkflowViewState.IdRef="CSharpValue`1_55">dtAuditExceptions</CSharpValue>
+              </InArgument>
+            </ui:WriteRange.DataTable>
+          </ui:WriteRange>
+          <ui:KillProcess AppliesTo="{x:Null}" ContinueOnError="True" DisplayName="Close Chrome Application" Process="{x:Null}" ProcessName="chrome" sap:VirtualizedContainerService.HintSize="500,80" sap2010:WorkflowViewState.IdRef="KillProcess_End" />
+          <Assign DisplayName="Assign out_dtAuditClean" sap:VirtualizedContainerService.HintSize="500,80" sap2010:WorkflowViewState.IdRef="Assign_OutClean">
+            <Assign.To>
+              <OutArgument x:TypeArguments="sd:DataTable">
+                <CSharpReference x:TypeArguments="sd:DataTable" sap2010:WorkflowViewState.IdRef="CSharpReference`1_37">out_dtAuditClean</CSharpReference>
+              </OutArgument>
+            </Assign.To>
+            <Assign.Value>
+              <InArgument x:TypeArguments="sd:DataTable">
+                <CSharpValue x:TypeArguments="sd:DataTable" sap2010:WorkflowViewState.IdRef="CSharpValue`1_56">dtAuditClean</CSharpValue>
+              </InArgument>
+            </Assign.Value>
+          </Assign>
+          <Assign DisplayName="Assign out_dtAuditExceptions" sap:VirtualizedContainerService.HintSize="500,80" sap2010:WorkflowViewState.IdRef="Assign_OutEx">
+            <Assign.To>
+              <OutArgument x:TypeArguments="sd:DataTable">
+                <CSharpReference x:TypeArguments="sd:DataTable" sap2010:WorkflowViewState.IdRef="CSharpReference`1_38">out_dtAuditExceptions</CSharpReference>
+              </OutArgument>
+            </Assign.To>
+            <Assign.Value>
+              <InArgument x:TypeArguments="sd:DataTable">
+                <CSharpValue x:TypeArguments="sd:DataTable" sap2010:WorkflowViewState.IdRef="CSharpValue`1_57">dtAuditExceptions</CSharpValue>
+              </InArgument>
+            </Assign.Value>
+          </Assign>
+          <ui:LogMessage DisplayName="Log Summary Header" sap:VirtualizedContainerService.HintSize="500,80" sap2010:WorkflowViewState.IdRef="LogMessage_Sum1" Level="Info">
+            <ui:LogMessage.Message>
+              <InArgument x:TypeArguments="x:Object">
+                <CSharpValue x:TypeArguments="x:Object" sap2010:WorkflowViewState.IdRef="CSharpValue`1_58">"==================== RECONCILIATION AUDIT SUMMARY ===================="</CSharpValue>
+              </InArgument>
+            </ui:LogMessage.Message>
+          </ui:LogMessage>
+          <ui:LogMessage DisplayName="Log Total Processed" sap:VirtualizedContainerService.HintSize="500,80" sap2010:WorkflowViewState.IdRef="LogMessage_Sum2" Level="Info">
+            <ui:LogMessage.Message>
+              <InArgument x:TypeArguments="x:Object">
+                <CSharpValue x:TypeArguments="x:Object" sap2010:WorkflowViewState.IdRef="CSharpValue`1_59">"Total Processed Transactions : " + (dtAuditClean.Rows.Count + dtAuditExceptions.Rows.Count).ToString()</CSharpValue>
+              </InArgument>
+            </ui:LogMessage.Message>
+          </ui:LogMessage>
+          <ui:LogMessage DisplayName="Log Total Matched" sap:VirtualizedContainerService.HintSize="500,80" sap2010:WorkflowViewState.IdRef="LogMessage_Sum3" Level="Info">
+            <ui:LogMessage.Message>
+              <InArgument x:TypeArguments="x:Object">
+                <CSharpValue x:TypeArguments="x:Object" sap2010:WorkflowViewState.IdRef="CSharpValue`1_60">"Total MATCHED (Audit_Clean)  : " + dtAuditClean.Rows.Count.ToString()</CSharpValue>
+              </InArgument>
+            </ui:LogMessage.Message>
+          </ui:LogMessage>
+          <ui:LogMessage DisplayName="Log Total Exceptions" sap:VirtualizedContainerService.HintSize="500,80" sap2010:WorkflowViewState.IdRef="LogMessage_Sum4" Level="Info">
+            <ui:LogMessage.Message>
+              <InArgument x:TypeArguments="x:Object">
+                <CSharpValue x:TypeArguments="x:Object" sap2010:WorkflowViewState.IdRef="CSharpValue`1_61">"Total EXCEPTIONS (Audit_Exceptions) : " + dtAuditExceptions.Rows.Count.ToString()</CSharpValue>
+              </InArgument>
+            </ui:LogMessage.Message>
+          </ui:LogMessage>
+          <ui:LogMessage DisplayName="Log Output Location" sap:VirtualizedContainerService.HintSize="500,80" sap2010:WorkflowViewState.IdRef="LogMessage_Sum5" Level="Info">
+            <ui:LogMessage.Message>
+              <InArgument x:TypeArguments="x:Object">
+                <CSharpValue x:TypeArguments="x:Object" sap2010:WorkflowViewState.IdRef="CSharpValue`1_62">"Output Excel generated at    : Data\\Output\\Laporan_Rekonsiliasi_REFramework.xlsx"</CSharpValue>
+              </InArgument>
+            </ui:LogMessage.Message>
+          </ui:LogMessage>
+          <ui:LogMessage DisplayName="Log Summary Footer" sap:VirtualizedContainerService.HintSize="500,80" sap2010:WorkflowViewState.IdRef="LogMessage_Sum6" Level="Info">
+            <ui:LogMessage.Message>
+              <InArgument x:TypeArguments="x:Object">
+                <CSharpValue x:TypeArguments="x:Object" sap2010:WorkflowViewState.IdRef="CSharpValue`1_63">"======================================================================"</CSharpValue>
+              </InArgument>
+            </ui:LogMessage.Message>
+          </ui:LogMessage>
+        </Sequence>
+      </State.Entry>
+    </State>
+  </StateMachine>
+</Activity>

@@ -1,0 +1,643 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="Workflows_ProcessTransaction" sap2010:ExpressionActivityEditor.ExpressionActivityEditor="CSharp" sap2010:WorkflowViewState.IdRef="ActivityBuilder_1" xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:s="clr-namespace:System;assembly=System.Private.CoreLib" xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation" xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation" xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib" xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=System.Private.CoreLib" xmlns:sd="clr-namespace:System.Data;assembly=System.Data.Common" xmlns:ui="http://schemas.uipath.com/workflow/activities" xmlns:uix="http://schemas.uipath.com/workflow/activities/uix" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <x:Members>
+    <x:Property Name="in_TransactionItem" Type="InArgument(ui:QueueItem)" />
+    <x:Property Name="in_TransactionDataRow" Type="InArgument(sd:DataRow)" />
+    <x:Property Name="in_TransactionNumber" Type="InArgument(x:Int32)" />
+    <x:Property Name="in_SimulateBrowserCrashAt" Type="InArgument(x:Int32)" />
+    <x:Property Name="io_RetryCount" Type="InOutArgument(x:Int32)" />
+    <x:Property Name="out_AuditStatus" Type="OutArgument(x:String)" />
+    <x:Property Name="out_AuditReason" Type="OutArgument(x:String)" />
+    <x:Property Name="out_ReconciliationStatus" Type="OutArgument(x:String)" />
+    <x:Property Name="out_PortalAmount" Type="OutArgument(x:String)" />
+    <x:Property Name="out_PortalStatus" Type="OutArgument(x:String)" />
+    <x:Property Name="out_TransactionId" Type="OutArgument(x:String)" />
+    <x:Property Name="out_AccountNumber" Type="OutArgument(x:String)" />
+    <x:Property Name="out_Channel" Type="OutArgument(x:String)" />
+    <x:Property Name="out_CoreAmount" Type="OutArgument(x:String)" />
+    <x:Property Name="out_SwitchingAmount" Type="OutArgument(x:String)" />
+    <x:Property Name="out_TransactionTimestamp" Type="OutArgument(x:String)" />
+  </x:Members>
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Statements</x:String>
+      <x:String>System.Activities.Expressions</x:String>
+      <x:String>System.Activities.Validation</x:String>
+      <x:String>System.Activities.XamlIntegration</x:String>
+      <x:String>Microsoft.VisualBasic</x:String>
+      <x:String>Microsoft.VisualBasic.Activities</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Collections</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.Data</x:String>
+      <x:String>System.Diagnostics</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>System.Net.Mail</x:String>
+      <x:String>System.Xml</x:String>
+      <x:String>System.Text</x:String>
+      <x:String>System.Xml.Linq</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+      <x:String>System.Windows.Markup</x:String>
+      <x:String>GlobalVariablesNamespace</x:String>
+      <x:String>GlobalConstantsNamespace</x:String>
+      <x:String>System.Runtime.Serialization</x:String>
+      <x:String>System.Reflection</x:String>
+      <x:String>System.Text.RegularExpressions</x:String>
+      <x:String>UiPath.UIAutomationNext.Enums</x:String>
+      <x:String>UiPath.UIAutomationNext.Activities</x:String>
+      <x:String>UiPath.Platform.ObjectLibrary</x:String>
+      <x:String>UiPath.Shared.Activities</x:String>
+      <x:String>UiPath.UIAutomationNext.Contracts</x:String>
+      <x:String>UiPath.UIAutomationNext.Models.CV</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>Microsoft.CSharp</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>System.Data</AssemblyReference>
+      <AssemblyReference>System.Data.Common</AssemblyReference>
+      <AssemblyReference>System.Runtime.Serialization</AssemblyReference>
+      <AssemblyReference>System.ServiceModel</AssemblyReference>
+      <AssemblyReference>System.ServiceModel.Activities</AssemblyReference>
+      <AssemblyReference>System.Xaml</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>System.Xml</AssemblyReference>
+      <AssemblyReference>System.Xml.Linq</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.UiAutomation.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.UIAutomationNext</AssemblyReference>
+      <AssemblyReference>UiPath.UIAutomationNext.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.Platform</AssemblyReference>
+      <AssemblyReference>System.Text.RegularExpressions</AssemblyReference>
+      <AssemblyReference>System.Collections</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.TypeConverter</AssemblyReference>
+      <AssemblyReference>System.Memory</AssemblyReference>
+      <AssemblyReference>System.Private.Uri</AssemblyReference>
+      <AssemblyReference>System.Private.ServiceModel</AssemblyReference>
+      <AssemblyReference>System.Runtime.Serialization.Formatters</AssemblyReference>
+      <AssemblyReference>System.Private.DataContractSerialization</AssemblyReference>
+      <AssemblyReference>System.Runtime.Serialization.Primitives</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence DisplayName="ProcessTransaction" sap:VirtualizedContainerService.HintSize="800,3400" sap2010:WorkflowViewState.IdRef="Sequence_1">
+    <Sequence.Variables>
+      <Variable x:TypeArguments="x:String" Name="strTransactionId" />
+      <Variable x:TypeArguments="x:String" Name="strAccountNumber" />
+      <Variable x:TypeArguments="x:String" Name="strChannel" />
+      <Variable x:TypeArguments="x:String" Name="strCoreAmount" />
+      <Variable x:TypeArguments="x:String" Name="strCoreStatus" />
+      <Variable x:TypeArguments="x:String" Name="strSwitchingAmount" />
+      <Variable x:TypeArguments="x:String" Name="strSwitchingStatus" />
+      <Variable x:TypeArguments="x:String" Name="strTransactionTimestamp" />
+      <Variable x:TypeArguments="x:String" Name="strPortalAmount">
+        <Variable.Default>
+          <Literal x:TypeArguments="x:String">0</Literal>
+        </Variable.Default>
+      </Variable>
+      <Variable x:TypeArguments="x:String" Name="strPortalStatus">
+        <Variable.Default>
+          <Literal x:TypeArguments="x:String">-</Literal>
+        </Variable.Default>
+      </Variable>
+      <Variable x:TypeArguments="x:Decimal" Name="decCoreAmount" />
+      <Variable x:TypeArguments="x:Decimal" Name="decSwitchingAmount" />
+      <Variable x:TypeArguments="x:Decimal" Name="decPortalAmount" />
+    </Sequence.Variables>
+    <sap:WorkflowViewStateService.ViewState>
+      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+        <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+      </scg:Dictionary>
+    </sap:WorkflowViewStateService.ViewState>
+    <ui:InvokeCode ContinueOnError="{x:Null}" DisplayName="Extract Transaction Information" Language="CSharp" sap:VirtualizedContainerService.HintSize="600,140" sap2010:WorkflowViewState.IdRef="InvokeCode_1">
+      <ui:InvokeCode.Arguments>
+        <InArgument x:TypeArguments="ui:QueueItem" x:Key="in_TransactionItem">
+          <CSharpValue x:TypeArguments="ui:QueueItem" sap2010:WorkflowViewState.IdRef="CSharpValue`1_1">in_TransactionItem</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="sd:DataRow" x:Key="in_TransactionDataRow">
+          <CSharpValue x:TypeArguments="sd:DataRow" sap2010:WorkflowViewState.IdRef="CSharpValue`1_2">in_TransactionDataRow</CSharpValue>
+        </InArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_TrxId">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_1">strTransactionId</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_AccNum">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_2">strAccountNumber</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_Chan">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_3">strChannel</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_CoreAmt">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_4">strCoreAmount</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_CoreStat">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_5">strCoreStatus</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_SwitchAmt">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_6">strSwitchingAmount</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_SwitchStat">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_7">strSwitchingStatus</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_TrxTime">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_8">strTransactionTimestamp</CSharpReference>
+        </OutArgument>
+      </ui:InvokeCode.Arguments>
+      <ui:InvokeCode.Code>
+        <x:String xml:space="preserve">if (in_TransactionItem != null &amp;&amp; in_TransactionItem.SpecificContent != null) {
+    out_TrxId = in_TransactionItem.SpecificContent.ContainsKey("TransactionId") ? in_TransactionItem.SpecificContent["TransactionId"].ToString().Trim() : "";
+    out_AccNum = in_TransactionItem.SpecificContent.ContainsKey("AccountNumber") ? in_TransactionItem.SpecificContent["AccountNumber"].ToString().Trim() : "";
+    out_Chan = in_TransactionItem.SpecificContent.ContainsKey("Channel") ? in_TransactionItem.SpecificContent["Channel"].ToString().Trim() : "";
+    out_CoreAmt = in_TransactionItem.SpecificContent.ContainsKey("CoreAmount") ? in_TransactionItem.SpecificContent["CoreAmount"].ToString().Trim() : "0";
+    out_CoreStat = in_TransactionItem.SpecificContent.ContainsKey("CoreStatus") ? in_TransactionItem.SpecificContent["CoreStatus"].ToString().Trim() : "";
+    out_SwitchAmt = in_TransactionItem.SpecificContent.ContainsKey("SwitchingAmount") ? in_TransactionItem.SpecificContent["SwitchingAmount"].ToString().Trim() : "0";
+    out_SwitchStat = in_TransactionItem.SpecificContent.ContainsKey("SwitchingStatus") ? in_TransactionItem.SpecificContent["SwitchingStatus"].ToString().Trim() : "NOT_FOUND";
+    out_TrxTime = in_TransactionItem.SpecificContent.ContainsKey("TransactionTimestamp") ? in_TransactionItem.SpecificContent["TransactionTimestamp"].ToString().Trim() : "";
+} else if (in_TransactionDataRow != null) {
+    out_TrxId = in_TransactionDataRow["TransactionId"].ToString().Trim();
+    out_AccNum = in_TransactionDataRow["AccountNumber"].ToString().Trim();
+    out_Chan = in_TransactionDataRow["Channel"].ToString().Trim();
+    out_CoreAmt = in_TransactionDataRow["CoreAmount"].ToString().Trim();
+    out_CoreStat = in_TransactionDataRow["CoreStatus"].ToString().Trim();
+    out_SwitchAmt = in_TransactionDataRow["SwitchingAmount"].ToString().Trim();
+    out_SwitchStat = in_TransactionDataRow["SwitchingStatus"].ToString().Trim();
+    out_TrxTime = in_TransactionDataRow["TransactionTimestamp"].ToString().Trim();
+} else {
+    out_TrxId = "";
+    out_AccNum = "";
+    out_Chan = "";
+    out_CoreAmt = "0";
+    out_CoreStat = "";
+    out_SwitchAmt = "0";
+    out_SwitchStat = "NOT_FOUND";
+    out_TrxTime = "";
+}</x:String>
+      </ui:InvokeCode.Code>
+    </ui:InvokeCode>
+    <Assign DisplayName="Assign out_TransactionId" sap:VirtualizedContainerService.HintSize="600,80" sap2010:WorkflowViewState.IdRef="Assign_1">
+      <Assign.To>
+        <OutArgument x:TypeArguments="x:String">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_9">out_TransactionId</CSharpReference>
+        </OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="x:String">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_3">strTransactionId</CSharpValue>
+        </InArgument>
+      </Assign.Value>
+    </Assign>
+    <Assign DisplayName="Assign out_AccountNumber" sap:VirtualizedContainerService.HintSize="600,80" sap2010:WorkflowViewState.IdRef="Assign_2">
+      <Assign.To>
+        <OutArgument x:TypeArguments="x:String">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_10">out_AccountNumber</CSharpReference>
+        </OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="x:String">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_4">strAccountNumber</CSharpValue>
+        </InArgument>
+      </Assign.Value>
+    </Assign>
+    <Assign DisplayName="Assign out_Channel" sap:VirtualizedContainerService.HintSize="600,80" sap2010:WorkflowViewState.IdRef="Assign_3">
+      <Assign.To>
+        <OutArgument x:TypeArguments="x:String">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_11">out_Channel</CSharpReference>
+        </OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="x:String">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_5">strChannel</CSharpValue>
+        </InArgument>
+      </Assign.Value>
+    </Assign>
+    <Assign DisplayName="Assign out_CoreAmount" sap:VirtualizedContainerService.HintSize="600,80" sap2010:WorkflowViewState.IdRef="Assign_4">
+      <Assign.To>
+        <OutArgument x:TypeArguments="x:String">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_12">out_CoreAmount</CSharpReference>
+        </OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="x:String">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_6">strCoreAmount</CSharpValue>
+        </InArgument>
+      </Assign.Value>
+    </Assign>
+    <Assign DisplayName="Assign out_SwitchingAmount" sap:VirtualizedContainerService.HintSize="600,80" sap2010:WorkflowViewState.IdRef="Assign_5">
+      <Assign.To>
+        <OutArgument x:TypeArguments="x:String">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_13">out_SwitchingAmount</CSharpReference>
+        </OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="x:String">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_7">strSwitchingAmount</CSharpValue>
+        </InArgument>
+      </Assign.Value>
+    </Assign>
+    <Assign DisplayName="Assign out_TransactionTimestamp" sap:VirtualizedContainerService.HintSize="600,80" sap2010:WorkflowViewState.IdRef="Assign_6">
+      <Assign.To>
+        <OutArgument x:TypeArguments="x:String">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_14">out_TransactionTimestamp</CSharpReference>
+        </OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="x:String">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_8">strTransactionTimestamp</CSharpValue>
+        </InArgument>
+      </Assign.Value>
+    </Assign>
+    <ui:LogMessage DisplayName="Log Processing Transaction Details" sap:VirtualizedContainerService.HintSize="600,140" sap2010:WorkflowViewState.IdRef="LogMessage_1" Level="Info">
+      <ui:LogMessage.Message>
+        <InArgument x:TypeArguments="x:Object">
+          <CSharpValue x:TypeArguments="x:Object" sap2010:WorkflowViewState.IdRef="CSharpValue`1_9">"Processing ID: " + strTransactionId + " | Rekening: " + strAccountNumber + " | Nominal Core: " + strCoreAmount + " | Status Core: " + strCoreStatus</CSharpValue>
+        </InArgument>
+      </ui:LogMessage.Message>
+    </ui:LogMessage>
+    <If DisplayName="Check Tugas 2 Simulated Chrome Crash" sap:VirtualizedContainerService.HintSize="600,300" sap2010:WorkflowViewState.IdRef="If_CrashSimulation">
+      <If.Condition>
+        <InArgument x:TypeArguments="x:Boolean">
+          <CSharpValue x:TypeArguments="x:Boolean" sap2010:WorkflowViewState.IdRef="CSharpValue`1_10">in_SimulateBrowserCrashAt == in_TransactionNumber &amp;&amp; io_RetryCount == 0</CSharpValue>
+        </InArgument>
+      </If.Condition>
+      <If.Then>
+        <Sequence DisplayName="Trigger Chrome Crash" sap:VirtualizedContainerService.HintSize="300,150" sap2010:WorkflowViewState.IdRef="Sequence_SimCrash">
+          <ui:LogMessage DisplayName="Log Crash Simulation" sap:VirtualizedContainerService.HintSize="260,60" sap2010:WorkflowViewState.IdRef="LogMessage_CrashSim" Level="Warn">
+            <ui:LogMessage.Message>
+              <InArgument x:TypeArguments="x:Object">
+                <CSharpValue x:TypeArguments="x:Object" sap2010:WorkflowViewState.IdRef="CSharpValue`1_11">"[TUGAS 2 SIMULASI ERROR] Triggering simulated Chrome Browser Crash at transaction #" + in_TransactionNumber.ToString()</CSharpValue>
+              </InArgument>
+            </ui:LogMessage.Message>
+          </ui:LogMessage>
+          <ui:KillProcess AppliesTo="{x:Null}" ContinueOnError="True" DisplayName="Kill Chrome Process" Process="{x:Null}" ProcessName="chrome" sap:VirtualizedContainerService.HintSize="260,60" sap2010:WorkflowViewState.IdRef="KillProcess_1" />
+          <Throw DisplayName="Throw Simulated System Exception" sap:VirtualizedContainerService.HintSize="260,60" sap2010:WorkflowViewState.IdRef="Throw_1">
+            <InArgument x:TypeArguments="s:Exception">
+              <CSharpValue x:TypeArguments="s:Exception" sap2010:WorkflowViewState.IdRef="CSharpValue`1_12">new System.Exception("Simulated Chrome Browser Crash at transaction #" + in_TransactionNumber.ToString())</CSharpValue>
+            </InArgument>
+          </Throw>
+        </Sequence>
+      </If.Then>
+      <If.Else>
+        <Sequence DisplayName="Else Normal" sap:VirtualizedContainerService.HintSize="300,80" sap2010:WorkflowViewState.IdRef="Sequence_CrashElse" />
+      </If.Else>
+    </If>
+    <If DisplayName="Validate Business Rule A - Account Number Format" sap:VirtualizedContainerService.HintSize="600,250" sap2010:WorkflowViewState.IdRef="If_ValidateAccount">
+      <If.Condition>
+        <InArgument x:TypeArguments="x:Boolean">
+          <CSharpValue x:TypeArguments="x:Boolean" sap2010:WorkflowViewState.IdRef="CSharpValue`1_13">strAccountNumber.Length &lt; 8 || !System.Text.RegularExpressions.Regex.IsMatch(strAccountNumber, "^[0-9]+$")</CSharpValue>
+        </InArgument>
+      </If.Condition>
+      <If.Then>
+        <Sequence DisplayName="Throw BRE Invalid Account" sap:VirtualizedContainerService.HintSize="300,80" sap2010:WorkflowViewState.IdRef="Sequence_AccountBRE">
+          <Throw DisplayName="Throw BRE Invalid Account Format" sap:VirtualizedContainerService.HintSize="260,60" sap2010:WorkflowViewState.IdRef="Throw_2">
+            <InArgument x:TypeArguments="s:Exception">
+              <CSharpValue x:TypeArguments="s:Exception" sap2010:WorkflowViewState.IdRef="CSharpValue`1_14">new UiPath.Core.BusinessRuleException("Invalid account format: Account number '" + strAccountNumber + "' has length " + strAccountNumber.Length.ToString() + " (min 8 digits required).")</CSharpValue>
+            </InArgument>
+          </Throw>
+        </Sequence>
+      </If.Then>
+      <If.Else>
+        <Sequence DisplayName="Else Account OK" sap:VirtualizedContainerService.HintSize="300,80" sap2010:WorkflowViewState.IdRef="Sequence_AccountOK" />
+      </If.Else>
+    </If>
+    <Assign DisplayName="Convert Core Amount to Decimal" sap:VirtualizedContainerService.HintSize="600,80" sap2010:WorkflowViewState.IdRef="Assign_7">
+      <Assign.To>
+        <OutArgument x:TypeArguments="x:Decimal">
+          <CSharpReference x:TypeArguments="x:Decimal" sap2010:WorkflowViewState.IdRef="CSharpReference`1_15">decCoreAmount</CSharpReference>
+        </OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="x:Decimal">
+          <CSharpValue x:TypeArguments="x:Decimal" sap2010:WorkflowViewState.IdRef="CSharpValue`1_15">Convert.ToDecimal(strCoreAmount)</CSharpValue>
+        </InArgument>
+      </Assign.Value>
+    </Assign>
+    <If DisplayName="Validate Business Rule B - Nominal &gt; 0" sap:VirtualizedContainerService.HintSize="600,250" sap2010:WorkflowViewState.IdRef="If_ValidateNominal">
+      <If.Condition>
+        <InArgument x:TypeArguments="x:Boolean">
+          <CSharpValue x:TypeArguments="x:Boolean" sap2010:WorkflowViewState.IdRef="CSharpValue`1_16">decCoreAmount &lt;= 0</CSharpValue>
+        </InArgument>
+      </If.Condition>
+      <If.Then>
+        <Sequence DisplayName="Throw BRE Zero Amount" sap:VirtualizedContainerService.HintSize="300,80" sap2010:WorkflowViewState.IdRef="Sequence_NominalBRE">
+          <Throw DisplayName="Throw BRE Zero Amount" sap:VirtualizedContainerService.HintSize="260,60" sap2010:WorkflowViewState.IdRef="Throw_3">
+            <InArgument x:TypeArguments="s:Exception">
+              <CSharpValue x:TypeArguments="s:Exception" sap2010:WorkflowViewState.IdRef="CSharpValue`1_17">new UiPath.Core.BusinessRuleException("Zero or negative amount in Core Banking: Rp" + strCoreAmount)</CSharpValue>
+            </InArgument>
+          </Throw>
+        </Sequence>
+      </If.Then>
+      <If.Else>
+        <Sequence DisplayName="Else Nominal OK" sap:VirtualizedContainerService.HintSize="300,80" sap2010:WorkflowViewState.IdRef="Sequence_NominalOK" />
+      </If.Else>
+    </If>
+    <If DisplayName="Validate Switching Presence" sap:VirtualizedContainerService.HintSize="600,250" sap2010:WorkflowViewState.IdRef="If_ValidateSwitchPresence">
+      <If.Condition>
+        <InArgument x:TypeArguments="x:Boolean">
+          <CSharpValue x:TypeArguments="x:Boolean" sap2010:WorkflowViewState.IdRef="CSharpValue`1_18">strSwitchingStatus == "NOT_FOUND"</CSharpValue>
+        </InArgument>
+      </If.Condition>
+      <If.Then>
+        <Sequence DisplayName="Throw BRE Not Found in Switch" sap:VirtualizedContainerService.HintSize="300,80" sap2010:WorkflowViewState.IdRef="Sequence_SwitchNotFoundBRE">
+          <Throw DisplayName="Throw BRE Missing in Switch" sap:VirtualizedContainerService.HintSize="260,60" sap2010:WorkflowViewState.IdRef="Throw_4">
+            <InArgument x:TypeArguments="s:Exception">
+              <CSharpValue x:TypeArguments="s:Exception" sap2010:WorkflowViewState.IdRef="CSharpValue`1_19">new UiPath.Core.BusinessRuleException("NOT FOUND IN SWITCH: Transaction " + strTransactionId + " is missing from Switching Gateway log.")</CSharpValue>
+            </InArgument>
+          </Throw>
+        </Sequence>
+      </If.Then>
+      <If.Else>
+        <Sequence DisplayName="Else Switch Found" sap:VirtualizedContainerService.HintSize="300,80" sap2010:WorkflowViewState.IdRef="Sequence_SwitchFound" />
+      </If.Else>
+    </If>
+    <Assign DisplayName="Convert Switching Amount to Decimal" sap:VirtualizedContainerService.HintSize="600,80" sap2010:WorkflowViewState.IdRef="Assign_8">
+      <Assign.To>
+        <OutArgument x:TypeArguments="x:Decimal">
+          <CSharpReference x:TypeArguments="x:Decimal" sap2010:WorkflowViewState.IdRef="CSharpReference`1_16">decSwitchingAmount</CSharpReference>
+        </OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="x:Decimal">
+          <CSharpValue x:TypeArguments="x:Decimal" sap2010:WorkflowViewState.IdRef="CSharpValue`1_20">Convert.ToDecimal(strSwitchingAmount)</CSharpValue>
+        </InArgument>
+      </Assign.Value>
+    </Assign>
+    <If DisplayName="Validate Switching Amount Variance" sap:VirtualizedContainerService.HintSize="600,250" sap2010:WorkflowViewState.IdRef="If_ValidateSwitchAmount">
+      <If.Condition>
+        <InArgument x:TypeArguments="x:Boolean">
+          <CSharpValue x:TypeArguments="x:Boolean" sap2010:WorkflowViewState.IdRef="CSharpValue`1_21">decCoreAmount != decSwitchingAmount</CSharpValue>
+        </InArgument>
+      </If.Condition>
+      <If.Then>
+        <Sequence DisplayName="Throw BRE Variance Amount Switch" sap:VirtualizedContainerService.HintSize="300,80" sap2010:WorkflowViewState.IdRef="Sequence_SwitchAmountBRE">
+          <Throw DisplayName="Throw BRE Variance Amount" sap:VirtualizedContainerService.HintSize="260,60" sap2010:WorkflowViewState.IdRef="Throw_5">
+            <InArgument x:TypeArguments="s:Exception">
+              <CSharpValue x:TypeArguments="s:Exception" sap2010:WorkflowViewState.IdRef="CSharpValue`1_22">new UiPath.Core.BusinessRuleException("Variance Amount: Core Rp" + strCoreAmount + " vs Switching Rp" + strSwitchingAmount)</CSharpValue>
+            </InArgument>
+          </Throw>
+        </Sequence>
+      </If.Then>
+      <If.Else>
+        <Sequence DisplayName="Else Switch Amount OK" sap:VirtualizedContainerService.HintSize="300,80" sap2010:WorkflowViewState.IdRef="Sequence_SwitchAmountOK" />
+      </If.Else>
+    </If>
+    <If DisplayName="Validate Switching Status Variance" sap:VirtualizedContainerService.HintSize="600,250" sap2010:WorkflowViewState.IdRef="If_ValidateSwitchStatus">
+      <If.Condition>
+        <InArgument x:TypeArguments="x:Boolean">
+          <CSharpValue x:TypeArguments="x:Boolean" sap2010:WorkflowViewState.IdRef="CSharpValue`1_23">strCoreStatus != strSwitchingStatus</CSharpValue>
+        </InArgument>
+      </If.Condition>
+      <If.Then>
+        <Sequence DisplayName="Throw BRE Variance Status Switch" sap:VirtualizedContainerService.HintSize="300,80" sap2010:WorkflowViewState.IdRef="Sequence_SwitchStatusBRE">
+          <Throw DisplayName="Throw BRE Variance Status" sap:VirtualizedContainerService.HintSize="260,60" sap2010:WorkflowViewState.IdRef="Throw_6">
+            <InArgument x:TypeArguments="s:Exception">
+              <CSharpValue x:TypeArguments="s:Exception" sap2010:WorkflowViewState.IdRef="CSharpValue`1_24">new UiPath.Core.BusinessRuleException("Variance Status: Core " + strCoreStatus + " vs Switching " + strSwitchingStatus)</CSharpValue>
+            </InArgument>
+          </Throw>
+        </Sequence>
+      </If.Then>
+      <If.Else>
+        <Sequence DisplayName="Else Switch Status OK" sap:VirtualizedContainerService.HintSize="300,80" sap2010:WorkflowViewState.IdRef="Sequence_SwitchStatusOK" />
+      </If.Else>
+    </If>
+    <uix:NApplicationCard AttachMode="ByInstance" CloseMode="Never" DisplayName="Use Application/Browser - Banking Portal" HealingAgentBehavior="Job" IsDisplayNameAuto="True" OpenMode="IfNotOpen" ScopeGuid="a2b3c4d5-e6f7-8901-abcd-ef1234567890" Version="V2" sap:VirtualizedContainerService.HintSize="600,900" sap2010:WorkflowViewState.IdRef="NApplicationCard_1">
+      <uix:NApplicationCard.Body>
+        <ActivityAction x:TypeArguments="x:Object">
+          <ActivityAction.Argument>
+            <DelegateInArgument x:TypeArguments="x:Object" Name="WSSessionData" />
+          </ActivityAction.Argument>
+          <Sequence DisplayName="Search and Extract from Web Portal" sap:VirtualizedContainerService.HintSize="550,750" sap2010:WorkflowViewState.IdRef="Sequence_2">
+            <Sequence.Variables>
+              <Variable x:TypeArguments="x:String" Name="innerPortalId" />
+              <Variable x:TypeArguments="x:String" Name="innerPortalAmount" />
+              <Variable x:TypeArguments="x:String" Name="innerPortalStatus" />
+            </Sequence.Variables>
+            <sap:WorkflowViewStateService.ViewState>
+              <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+              </scg:Dictionary>
+            </sap:WorkflowViewStateService.ViewState>
+            <uix:NTypeInto ActivateBefore="True" ClickBeforeMode="Single" DisplayName="Type Transaction ID" EmptyFieldMode="SingleLine" HealingAgentBehavior="Job" ScopeIdentifier="a2b3c4d5-e6f7-8901-abcd-ef1234567890" Version="V5" sap:VirtualizedContainerService.HintSize="500,120" sap2010:WorkflowViewState.IdRef="NTypeInto_1">
+              <uix:NTypeInto.Target>
+                <uix:TargetAnchorable FullSelectorArgument="&lt;webctrl id='search-trx-id' tag='INPUT' /&gt;" SearchSteps="Selector" Version="V6" />
+              </uix:NTypeInto.Target>
+              <uix:NTypeInto.Text>
+                <InArgument x:TypeArguments="x:String">
+                  <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_25">strTransactionId</CSharpValue>
+                </InArgument>
+              </uix:NTypeInto.Text>
+            </uix:NTypeInto>
+            <uix:NClick ActivateBefore="True" ClickType="Single" DisplayName="Click Search Button" HealingAgentBehavior="Job" KeyModifiers="None" MouseButton="Left" ScopeIdentifier="a2b3c4d5-e6f7-8901-abcd-ef1234567890" Version="V5" sap:VirtualizedContainerService.HintSize="500,120" sap2010:WorkflowViewState.IdRef="NClick_1">
+              <uix:NClick.Target>
+                <uix:TargetAnchorable FullSelectorArgument="&lt;webctrl id='btn-search-trx' tag='BUTTON' /&gt;" SearchSteps="Selector" Version="V6" />
+              </uix:NClick.Target>
+            </uix:NClick>
+            <uix:NGetText DisplayName="Get Web Portal Trx ID" HealingAgentBehavior="Job" ScopeIdentifier="a2b3c4d5-e6f7-8901-abcd-ef1234567890" Version="V5" sap:VirtualizedContainerService.HintSize="500,120" sap2010:WorkflowViewState.IdRef="NGetText_1">
+              <uix:NGetText.Target>
+                <uix:TargetAnchorable FullSelectorArgument="&lt;webctrl id='web-trx-id' tag='SPAN' /&gt;" SearchSteps="Selector" Version="V6" />
+              </uix:NGetText.Target>
+              <uix:NGetText.TextString>
+                <OutArgument x:TypeArguments="x:String">
+                  <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_17">innerPortalId</CSharpReference>
+                </OutArgument>
+              </uix:NGetText.TextString>
+            </uix:NGetText>
+            <uix:NGetText DisplayName="Get Web Portal Amount" HealingAgentBehavior="Job" ScopeIdentifier="a2b3c4d5-e6f7-8901-abcd-ef1234567890" Version="V5" sap:VirtualizedContainerService.HintSize="500,120" sap2010:WorkflowViewState.IdRef="NGetText_2">
+              <uix:NGetText.Target>
+                <uix:TargetAnchorable FullSelectorArgument="&lt;webctrl id='web-trx-amount' tag='SPAN' /&gt;" SearchSteps="Selector" Version="V6" />
+              </uix:NGetText.Target>
+              <uix:NGetText.TextString>
+                <OutArgument x:TypeArguments="x:String">
+                  <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_18">innerPortalAmount</CSharpReference>
+                </OutArgument>
+              </uix:NGetText.TextString>
+            </uix:NGetText>
+            <uix:NGetText DisplayName="Get Web Portal Status" HealingAgentBehavior="Job" ScopeIdentifier="a2b3c4d5-e6f7-8901-abcd-ef1234567890" Version="V5" sap:VirtualizedContainerService.HintSize="500,120" sap2010:WorkflowViewState.IdRef="NGetText_3">
+              <uix:NGetText.Target>
+                <uix:TargetAnchorable FullSelectorArgument="&lt;webctrl id='web-trx-status' tag='SPAN' /&gt;" SearchSteps="Selector" Version="V6" />
+              </uix:NGetText.Target>
+              <uix:NGetText.TextString>
+                <OutArgument x:TypeArguments="x:String">
+                  <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_19">innerPortalStatus</CSharpReference>
+                </OutArgument>
+              </uix:NGetText.TextString>
+            </uix:NGetText>
+            <Assign DisplayName="Assign Outer strPortalAmount" sap:VirtualizedContainerService.HintSize="500,60" sap2010:WorkflowViewState.IdRef="Assign_9">
+              <Assign.To>
+                <OutArgument x:TypeArguments="x:String">
+                  <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_20">strPortalAmount</CSharpReference>
+                </OutArgument>
+              </Assign.To>
+              <Assign.Value>
+                <InArgument x:TypeArguments="x:String">
+                  <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_26">innerPortalAmount</CSharpValue>
+                </InArgument>
+              </Assign.Value>
+            </Assign>
+            <Assign DisplayName="Assign Outer strPortalStatus" sap:VirtualizedContainerService.HintSize="500,60" sap2010:WorkflowViewState.IdRef="Assign_10">
+              <Assign.To>
+                <OutArgument x:TypeArguments="x:String">
+                  <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_21">strPortalStatus</CSharpReference>
+                </OutArgument>
+              </Assign.To>
+              <Assign.Value>
+                <InArgument x:TypeArguments="x:String">
+                  <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_27">innerPortalStatus</CSharpValue>
+                </InArgument>
+              </Assign.Value>
+            </Assign>
+          </Sequence>
+        </ActivityAction>
+      </uix:NApplicationCard.Body>
+      <uix:NApplicationCard.TargetApp>
+        <uix:TargetApp Area="0, 0, 0, 0" FilePath="chrome.exe" Selector="&lt;html app='chrome.exe' title='*Bank Nusantara*' /&gt;" Version="V3">
+          <uix:TargetApp.Url>
+            <InArgument x:TypeArguments="x:String">
+              <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_28">"file:///" + System.IO.Path.GetFullPath(@"WebPortal\\banking-monitoring-portal.html").Replace('\\', '/')</CSharpValue>
+            </InArgument>
+          </uix:TargetApp.Url>
+        </uix:TargetApp>
+      </uix:NApplicationCard.TargetApp>
+    </uix:NApplicationCard>
+    <Assign DisplayName="Assign out_PortalAmount" sap:VirtualizedContainerService.HintSize="600,80" sap2010:WorkflowViewState.IdRef="Assign_11">
+      <Assign.To>
+        <OutArgument x:TypeArguments="x:String">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_22">out_PortalAmount</CSharpReference>
+        </OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="x:String">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_29">strPortalAmount</CSharpValue>
+        </InArgument>
+      </Assign.Value>
+    </Assign>
+    <Assign DisplayName="Assign out_PortalStatus" sap:VirtualizedContainerService.HintSize="600,80" sap2010:WorkflowViewState.IdRef="Assign_12">
+      <Assign.To>
+        <OutArgument x:TypeArguments="x:String">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_23">out_PortalStatus</CSharpReference>
+        </OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="x:String">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_30">strPortalStatus</CSharpValue>
+        </InArgument>
+      </Assign.Value>
+    </Assign>
+    <If DisplayName="Validate Portal Presence" sap:VirtualizedContainerService.HintSize="600,250" sap2010:WorkflowViewState.IdRef="If_ValidatePortalPresence">
+      <If.Condition>
+        <InArgument x:TypeArguments="x:Boolean">
+          <CSharpValue x:TypeArguments="x:Boolean" sap2010:WorkflowViewState.IdRef="CSharpValue`1_31">strPortalStatus == "NOT_FOUND"</CSharpValue>
+        </InArgument>
+      </If.Condition>
+      <If.Then>
+        <Sequence DisplayName="Throw BRE Not Found in Portal" sap:VirtualizedContainerService.HintSize="300,80" sap2010:WorkflowViewState.IdRef="Sequence_PortalNotFoundBRE">
+          <Throw DisplayName="Throw BRE Portal Missing" sap:VirtualizedContainerService.HintSize="260,60" sap2010:WorkflowViewState.IdRef="Throw_7">
+            <InArgument x:TypeArguments="s:Exception">
+              <CSharpValue x:TypeArguments="s:Exception" sap2010:WorkflowViewState.IdRef="CSharpValue`1_32">new UiPath.Core.BusinessRuleException("NOT FOUND IN PORTAL: Transaction " + strTransactionId + " not found in Banking Monitoring Portal.")</CSharpValue>
+            </InArgument>
+          </Throw>
+        </Sequence>
+      </If.Then>
+      <If.Else>
+        <Sequence DisplayName="Else Portal Found" sap:VirtualizedContainerService.HintSize="300,80" sap2010:WorkflowViewState.IdRef="Sequence_PortalFound" />
+      </If.Else>
+    </If>
+    <Assign DisplayName="Convert Portal Amount to Decimal" sap:VirtualizedContainerService.HintSize="600,80" sap2010:WorkflowViewState.IdRef="Assign_13">
+      <Assign.To>
+        <OutArgument x:TypeArguments="x:Decimal">
+          <CSharpReference x:TypeArguments="x:Decimal" sap2010:WorkflowViewState.IdRef="CSharpReference`1_24">decPortalAmount</CSharpReference>
+        </OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="x:Decimal">
+          <CSharpValue x:TypeArguments="x:Decimal" sap2010:WorkflowViewState.IdRef="CSharpValue`1_33">Convert.ToDecimal(strPortalAmount)</CSharpValue>
+        </InArgument>
+      </Assign.Value>
+    </Assign>
+    <If DisplayName="Validate Portal Amount Variance" sap:VirtualizedContainerService.HintSize="600,250" sap2010:WorkflowViewState.IdRef="If_ValidatePortalAmount">
+      <If.Condition>
+        <InArgument x:TypeArguments="x:Boolean">
+          <CSharpValue x:TypeArguments="x:Boolean" sap2010:WorkflowViewState.IdRef="CSharpValue`1_34">decCoreAmount != decPortalAmount</CSharpValue>
+        </InArgument>
+      </If.Condition>
+      <If.Then>
+        <Sequence DisplayName="Throw BRE Variance Amount Portal" sap:VirtualizedContainerService.HintSize="300,80" sap2010:WorkflowViewState.IdRef="Sequence_PortalAmountBRE">
+          <Throw DisplayName="Throw BRE Variance Amount Portal" sap:VirtualizedContainerService.HintSize="260,60" sap2010:WorkflowViewState.IdRef="Throw_8">
+            <InArgument x:TypeArguments="s:Exception">
+              <CSharpValue x:TypeArguments="s:Exception" sap2010:WorkflowViewState.IdRef="CSharpValue`1_35">new UiPath.Core.BusinessRuleException("Variance Amount with Portal: Core Rp" + strCoreAmount + " vs Portal Rp" + strPortalAmount)</CSharpValue>
+            </InArgument>
+          </Throw>
+        </Sequence>
+      </If.Then>
+      <If.Else>
+        <Sequence DisplayName="Else Portal Amount OK" sap:VirtualizedContainerService.HintSize="300,80" sap2010:WorkflowViewState.IdRef="Sequence_PortalAmountOK" />
+      </If.Else>
+    </If>
+    <If DisplayName="Validate Portal Status Variance" sap:VirtualizedContainerService.HintSize="600,250" sap2010:WorkflowViewState.IdRef="If_ValidatePortalStatus">
+      <If.Condition>
+        <InArgument x:TypeArguments="x:Boolean">
+          <CSharpValue x:TypeArguments="x:Boolean" sap2010:WorkflowViewState.IdRef="CSharpValue`1_36">strCoreStatus != strPortalStatus</CSharpValue>
+        </InArgument>
+      </If.Condition>
+      <If.Then>
+        <Sequence DisplayName="Throw BRE Variance Status Portal" sap:VirtualizedContainerService.HintSize="300,80" sap2010:WorkflowViewState.IdRef="Sequence_PortalStatusBRE">
+          <Throw DisplayName="Throw BRE Variance Status Portal" sap:VirtualizedContainerService.HintSize="260,60" sap2010:WorkflowViewState.IdRef="Throw_9">
+            <InArgument x:TypeArguments="s:Exception">
+              <CSharpValue x:TypeArguments="s:Exception" sap2010:WorkflowViewState.IdRef="CSharpValue`1_37">new UiPath.Core.BusinessRuleException("Variance Status with Portal: Core " + strCoreStatus + " vs Portal " + strPortalStatus)</CSharpValue>
+            </InArgument>
+          </Throw>
+        </Sequence>
+      </If.Then>
+      <If.Else>
+        <Sequence DisplayName="Else Portal Status OK" sap:VirtualizedContainerService.HintSize="300,80" sap2010:WorkflowViewState.IdRef="Sequence_PortalStatusOK" />
+      </If.Else>
+    </If>
+    <Assign DisplayName="Assign out_AuditStatus SUCCESS" sap:VirtualizedContainerService.HintSize="600,80" sap2010:WorkflowViewState.IdRef="Assign_14">
+      <Assign.To>
+        <OutArgument x:TypeArguments="x:String">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_25">out_AuditStatus</CSharpReference>
+        </OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="x:String">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_38">"SUCCESS"</CSharpValue>
+        </InArgument>
+      </Assign.Value>
+    </Assign>
+    <Assign DisplayName="Assign out_ReconciliationStatus MATCHED" sap:VirtualizedContainerService.HintSize="600,80" sap2010:WorkflowViewState.IdRef="Assign_15">
+      <Assign.To>
+        <OutArgument x:TypeArguments="x:String">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_26">out_ReconciliationStatus</CSharpReference>
+        </OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="x:String">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_39">"MATCHED"</CSharpValue>
+        </InArgument>
+      </Assign.Value>
+    </Assign>
+    <Assign DisplayName="Assign out_AuditReason Valid" sap:VirtualizedContainerService.HintSize="600,80" sap2010:WorkflowViewState.IdRef="Assign_16">
+      <Assign.To>
+        <OutArgument x:TypeArguments="x:String">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_27">out_AuditReason</CSharpReference>
+        </OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="x:String">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_40">"Semua parameter valid dan cocok di Core, Switching, dan Portal"</CSharpValue>
+        </InArgument>
+      </Assign.Value>
+    </Assign>
+    <ui:LogMessage DisplayName="Log Process Success" sap:VirtualizedContainerService.HintSize="600,140" sap2010:WorkflowViewState.IdRef="LogMessage_2" Level="Info">
+      <ui:LogMessage.Message>
+        <InArgument x:TypeArguments="x:Object">
+          <CSharpValue x:TypeArguments="x:Object" sap2010:WorkflowViewState.IdRef="CSharpValue`1_41">"Transaction " + strTransactionId + " successfully reconciled (MATCHED)."</CSharpValue>
+        </InArgument>
+      </ui:LogMessage.Message>
+    </ui:LogMessage>
+  </Sequence>
+</Activity>

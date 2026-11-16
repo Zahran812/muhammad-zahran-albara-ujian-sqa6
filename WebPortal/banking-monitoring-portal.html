@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bank Nusantara - Live Settlement Monitoring Portal (Day 30 Enterprise REFramework)</title>
+  <style>
+    :root {
+      --primary: #0f172a;
+      --accent: #2563eb;
+      --danger: #dc2626;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #e2e8f0;
+    }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--primary); margin: 0; padding: 24px; }
+    .container { max-width: 1050px; margin: 0 auto; }
+    header { background: var(--primary); color: #fff; padding: 20px 24px; border-radius: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+    header h1 { margin: 0; font-size: 20px; }
+    header span { background: var(--accent); padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .search-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    input[type="text"] { flex: 1; min-width: 240px; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 15px; }
+    button { background: var(--accent); color: #fff; border: none; padding: 10px 20px; border-radius: 6px; font-size: 15px; font-weight: 600; cursor: pointer; }
+    button:hover { background: #1d4ed8; }
+    .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+    .metric { background: #f1f5f9; padding: 12px; border-radius: 8px; }
+    .metric label { display: block; font-size: 12px; color: #64748b; margin-bottom: 4px; }
+    .metric span { font-size: 16px; font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+    th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    th { background: #f1f5f9; font-weight: 600; }
+    .badge-ok { color: #15803d; font-weight: 700; }
+    .badge-err { color: #b91c1c; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>Bank Nusantara — Enterprise Settlement Back-Office Portal</h1>
+        <small>Target UI Automation REFramework Performer (UiPath Studio Modern Experience)</small>
+      </div>
+      <span>RPA REFramework DAY 30</span>
+    </header>
+
+    <div class="card">
+      <h2 style="margin-top:0; font-size:16px;">Pencarian Settlement per ID Transaksi (State 3-4 Process Transaction)</h2>
+      <div class="search-row">
+        <input id="search-trx-id" type="text" placeholder="Masukkan ID Transaksi (contoh: TRX-2026-0001)" />
+        <button id="btn-search-trx" type="button" onclick="searchTransaction()">Cari Transaksi</button>
+      </div>
+      <div class="result-grid">
+        <div class="metric">
+          <label>ID Transaksi</label>
+          <span id="web-trx-id">-</span>
+        </div>
+        <div class="metric">
+          <label>Channel</label>
+          <span id="web-trx-channel">-</span>
+        </div>
+        <div class="metric">
+          <label>Nominal Web Portal (IDR)</label>
+          <span id="web-trx-amount">0</span>
+        </div>
+        <div class="metric">
+          <label>Status Portal</label>
+          <span id="web-trx-status">-</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-top:0; font-size:16px;">Live Settlement Log (25 Records)</h2>
+      <table id="tbl-transactions">
+        <thead>
+          <tr>
+            <th>ID Transaksi</th>
+            <th>No Rekening</th>
+            <th>Channel</th>
+            <th>Nominal</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="trx-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const PORTAL_DATA = [
+      { id: "TRX-2026-0001", rek: "1100223344", channel: "BI-FAST", amount: "1500000", status: "SUCCESS" },
+      { id: "TRX-2026-0002", rek: "1100223345", channel: "QRIS", amount: "250000", status: "SUCCESS" },
+      { id: "TRX-2026-0003", rek: "1100223346", channel: "RTOL", amount: "3200000", status: "SUCCESS" },
+      { id: "TRX-2026-0004", rek: "1100223347", channel: "BI-FAST", amount: "5000000", status: "SUCCESS" },
+      { id: "TRX-2026-0005", rek: "12345", channel: "VA", amount: "750000", status: "SUCCESS" },
+      { id: "TRX-2026-0006", rek: "1100223349", channel: "BI-FAST", amount: "1250000", status: "SUCCESS" },
+      { id: "TRX-2026-0007", rek: "1100223350", channel: "QRIS", amount: "85000", status: "SUCCESS" },
+      { id: "TRX-2026-0008", rek: "1100223351", channel: "SKN", amount: "12000000", status: "SUCCESS" },
+      { id: "TRX-2026-0009", rek: "1100223352", channel: "RTOL", amount: "640000", status: "SUCCESS" },
+      { id: "TRX-2026-0010", rek: "1100223353", channel: "BI-FAST", amount: "2100000", status: "SUCCESS" },
+      { id: "TRX-2026-0011", rek: "1100223354", channel: "VA", amount: "430000", status: "SUCCESS" },
+      { id: "TRX-2026-0012", rek: "1100223355", channel: "QRIS", amount: "120000", status: "SUCCESS" },
+      { id: "TRX-2026-0013", rek: "1100223356", channel: "BI-FAST", amount: "0", status: "SUCCESS" },
+      { id: "TRX-2026-0014", rek: "1100223357", channel: "RTOL", amount: "990000", status: "SUCCESS" },
+      { id: "TRX-2026-0015", rek: "1100223358", channel: "BI-FAST", amount: "300000", status: "SUCCESS" },
+      { id: "TRX-2026-0016", rek: "1100223359", channel: "VA", amount: "1850000", status: "SUCCESS" },
+      { id: "TRX-2026-0017", rek: "1100223360", channel: "QRIS", amount: "45000", status: "SUCCESS" },
+      { id: "TRX-2026-0018", rek: "9988", channel: "BI-FAST", amount: "4200000", status: "SUCCESS" },
+      { id: "TRX-2026-0019", rek: "1100223362", channel: "RTOL", amount: "560000", status: "SUCCESS" },
+      { id: "TRX-2026-0020", rek: "1100223363", channel: "BI-FAST", amount: "9500000", status: "SUCCESS" },
+      { id: "TRX-2026-0021", rek: "1100223364", channel: "BI-FAST", amount: "1100000", status: "SUCCESS" },
+      { id: "TRX-2026-0022", rek: "1100223365", channel: "QRIS", amount: "75000", status: "SUCCESS" },
+      { id: "TRX-2026-0023", rek: "1100223366", channel: "VA", amount: "6200000", status: "SUCCESS" },
+      { id: "TRX-2026-0024", rek: "1100223367", channel: "RTOL", amount: "880000", status: "SUCCESS" },
+      { id: "TRX-2026-0025", rek: "1100223368", channel: "BI-FAST", amount: "3400000", status: "SUCCESS" }
+    ];
+
+    function renderTable() {
+      const tbody = document.getElementById("trx-table-body");
+      tbody.innerHTML = PORTAL_DATA.map(row => `
+        <tr>
+          <td>${row.id}</td>
+          <td>${row.rek}</td>
+          <td>${row.channel}</td>
+          <td>${row.amount}</td>
+          <td class="badge-ok">${row.status}</td>
+        </tr>
+      `).join("");
+    }
+
+    function searchTransaction() {
+      const query = document.getElementById("search-trx-id").value.trim().toUpperCase();
+      const found = PORTAL_DATA.find(item => item.id.toUpperCase() === query);
+      if (found) {
+        document.getElementById("web-trx-id").innerText = found.id;
+        document.getElementById("web-trx-channel").innerText = found.channel;
+        document.getElementById("web-trx-amount").innerText = found.amount;
+        document.getElementById("web-trx-status").innerText = found.status;
+        document.getElementById("web-trx-status").className = "badge-ok";
+      } else {
+        document.getElementById("web-trx-id").innerText = query || "-";
+        document.getElementById("web-trx-channel").innerText = "-";
+        document.getElementById("web-trx-amount").innerText = "0";
+        document.getElementById("web-trx-status").innerText = "NOT_FOUND";
+        document.getElementById("web-trx-status").className = "badge-err";
+      }
+    }
+
+    renderTable();
+  </script>
+</body>
+</html>
+
